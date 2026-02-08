@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 
@@ -12,8 +13,25 @@ export default function Navbar() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showUserMenuMini, setShowUserMenuMini] = useState(false);
-  const { user, logout } = useAuth();
+  const [currentPromo, setCurrentPromo] = useState(0);
+  const { user, logout, isAdmin } = useAuth();
   const { toggleCart, itemCount } = useCart();
+  const router = useRouter();
+
+  const promos = [
+    "Frete grátis para compras acima de R$ 299",
+    "Até 10x sem juros no cartão de crédito",
+    "Descontos de até 50% em produtos selecionados",
+    "Entrega expressa para sua região",
+  ];
+
+  // Rotação automática das promoções
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPromo((prev) => (prev + 1) % promos.length);
+    }, 8000); // 5 segundos para transição mais suave
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let ticking = false;
@@ -66,11 +84,76 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Navbar Principal */}
-      <nav
-        className={`bg-white shadow-md fixed top-0 left-0 right-0 z-50 transition-transform duration-500 ease-in-out ${
+      {/* Top Bar - Carousel de Promoções */}
+      <div
+        className={`bg-black text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* Carrossel à Esquerda */}
+            <div className="flex items-center gap-3 flex-1">
+              {/* Texto com Transição */}
+              <div className="relative h-6 overflow-hidden flex-1 max-w-md">
+                {promos.map((promo, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 flex items-center text-sm font-light transition-all duration-700 ease-in-out ${
+                      index === currentPromo
+                        ? "opacity-100 translate-x-0"
+                        : index < currentPromo
+                          ? "opacity-0 -translate-x-full"
+                          : "opacity-0 translate-x-full"
+                    }`}
+                  >
+                    {promo}
+                  </div>
+                ))}
+              </div>
+
+              {/* Indicadores Discretos */}
+              <div className="flex items-center gap-1.5">
+                {promos.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPromo(index)}
+                    className={`h-1 rounded-full transition-all duration-300 ${
+                      index === currentPromo
+                        ? "w-4 bg-white/80"
+                        : "w-1 bg-white/30 hover:bg-white/50"
+                    }`}
+                    aria-label={`Ir para promoção ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Links à Direita */}
+            <div className="flex items-center gap-6 text-sm font-light">
+              <Link
+                href="/contato"
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Contato
+              </Link>
+              <Link
+                href="/ajuda"
+                className="text-white/80 hover:text-white transition-colors"
+              >
+                Ajuda
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navbar Principal */}
+      <nav
+        className={`bg-white shadow-md fixed left-0 right-0 z-40 transition-all duration-700 ease-out ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        }`}
+        style={{ top: "40px" }}
       >
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -217,6 +300,15 @@ export default function Navbar() {
                               {user.email}
                             </p>
                           </div>
+                          {isAdmin && (
+                            <Link
+                              href="/admin"
+                              className="block px-4 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors border-b border-gray-100"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              🔐 Painel Admin
+                            </Link>
+                          )}
                           <Link
                             href="/conta"
                             className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
@@ -240,13 +332,17 @@ export default function Navbar() {
                           </Link>
                           <div className="border-t border-gray-100 mt-2 pt-2">
                             <button
-                              onClick={() => {
-                                logout();
+                              onClick={async () => {
+                                await logout();
                                 setShowUserMenu(false);
+                                router.push("/");
                               }}
-                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors"
+                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                             >
-                              Sair
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              </svg>
+                              Sair da Conta
                             </button>
                           </div>
                         </div>
@@ -641,6 +737,15 @@ export default function Navbar() {
                               {user.email}
                             </p>
                           </div>
+                          {isAdmin && (
+                            <Link
+                              href="/admin"
+                              className="block px-4 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors border-b border-gray-100"
+                              onClick={() => setShowUserMenuMini(false)}
+                            >
+                              🔐 Painel Admin
+                            </Link>
+                          )}
                           <Link
                             href="/conta"
                             className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
@@ -664,13 +769,17 @@ export default function Navbar() {
                           </Link>
                           <div className="border-t border-gray-100 mt-2 pt-2">
                             <button
-                              onClick={() => {
-                                logout();
+                              onClick={async () => {
+                                await logout();
                                 setShowUserMenuMini(false);
+                                router.push("/");
                               }}
-                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors"
+                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                             >
-                              Sair
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              </svg>
+                              Sair da Conta
                             </button>
                           </div>
                         </div>
