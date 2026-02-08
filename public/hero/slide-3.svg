@@ -1,0 +1,59 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient - elegant neutral tones -->
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e7e5e4;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#d6d3d1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5f5f4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skin3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c49463;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="suit" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a8a29e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#78716c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1920" height="1080" fill="url(#bg3)"/>
+  
+  <!-- Elegant minimal elements -->
+  <line x1="300" y1="200" x2="300" y2="880" stroke="#57534e" stroke-width="1" opacity="0.1"/>
+  <line x1="1620" y1="200" x2="1620" y2="880" stroke="#57534e" stroke-width="1" opacity="0.1"/>
+  <circle cx="960" cy="900" r="250" fill="#57534e" opacity="0.03"/>
+  
+  <!-- Female model - tailored suit -->
+  <g transform="translate(1150, 120)">
+    <!-- Head -->
+    <ellipse cx="0" cy="0" rx="78" ry="88" fill="url(#skin3)"/>
+    <!-- Sleek hair bun -->
+    <ellipse cx="0" cy="-40" rx="75" ry="50" fill="#2d2d2d"/>
+    <circle cx="0" cy="-70" r="35" fill="#2d2d2d"/>
+    <!-- Neck -->
+    <rect x="-22" y="80" width="44" height="60" rx="8" fill="url(#skin3)"/>
+    <!-- Blazer - structured professional -->
+    <path d="M -100,140 L -110,280 L -95,500 L -70,850 L -40,920 L 40,920 L 70,850 L 95,500 L 110,280 L 100,140 Q 60,135 0,135 Q -60,135 -100,140 Z" fill="url(#suit)"/>
+    <!-- Lapels -->
+    <path d="M -50,150 L -75,220 L -60,260 L -30,200 Z" fill="#57534e"/>
+    <path d="M 50,150 L 75,220 L 60,260 L 30,200 Z" fill="#57534e"/>
+    <!-- Button line -->
+    <circle cx="0" cy="250" r="8" fill="#44403c"/>
+    <circle cx="0" cy="350" r="8" fill="#44403c"/>
+    <circle cx="0" cy="450" r="8" fill="#44403c"/>
+    <!-- Arms -->
+    <ellipse cx="-115" cy="350" rx="32" ry="190" fill="url(#suit)" transform="rotate(-8 -115 350)"/>
+    <ellipse cx="115" cy="350" rx="32" ry="190" fill="url(#suit)" transform="rotate(8 115 350)"/>
+    <!-- Hands -->
+    <ellipse cx="-125" cy="530" rx="28" ry="35" fill="url(#skin3)"/>
+    <ellipse cx="125" cy="530" rx="28" ry="35" fill="url(#skin3)"/>
+    <!-- Trousers -->
+    <rect x="-70" y="850" width="65" height="70" fill="#57534e"/>
+    <rect x="5" y="850" width="65" height="70" fill="#57534e"/>
+    <!-- Shirt collar -->
+    <path d="M -35,140 L -40,165 L -20,175 L 0,155 L 20,175 L 40,165 L 35,140 Z" fill="#fafaf9"/>
+  </g>
+  
+  <!-- Sophisticated typography -->
+  <text x="1400" y="980" font-family="serif" font-size="60" font-weight="300" fill="#57534e" opacity="0.08">ELEGANCE</text>
+</svg>

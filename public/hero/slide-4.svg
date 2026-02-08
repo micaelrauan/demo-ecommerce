@@ -1,0 +1,56 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient - beach/summer tones -->
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7dd3fc;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#93c5fd;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a5f3fc;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skin4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f9dacf;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0c6b8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="swimwear" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fef08a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#fde047;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1920" height="1080" fill="url(#bg4)"/>
+  
+  <!-- Beach elements - waves and sun -->
+  <circle cx="1700" cy="200" r="120" fill="#fef08a" opacity="0.4"/>
+  <ellipse cx="960" cy="950" rx="600" ry="80" fill="#fff" opacity="0.2"/>
+  <ellipse cx="960" cy="980" rx="500" ry="60" fill="#fff" opacity="0.25"/>
+  <circle cx="300" cy="400" r="40" fill="#fff" opacity="0.15"/>
+  <circle cx="400" cy="600" r="30" fill="#fff" opacity="0.18"/>
+  
+  <!-- Female model - beachwear -->
+  <g transform="translate(1200, 180)">
+    <!-- Head -->
+    <ellipse cx="0" cy="0" rx="80" ry="90" fill="url(#skin4)"/>
+    <!-- Long flowing hair -->
+    <path d="M -65,-35 Q -95,-15 -90,25 L -85,100 Q -80,200 -75,300 L -70,380 Q -55,250 -40,350 Q -30,150 -20,280 Q -10,100 0,-45 Q 10,100 20,280 Q 30,150 40,350 Q 55,250 70,380 L 75,300 Q 80,200 85,100 L 90,25 Q 95,-15 65,-35 Q 32,-68 0,-73 Q -32,-68 -65,-35 Z" fill="#654321"/>
+    <!-- Neck -->
+    <rect x="-24" y="82" width="48" height="58" rx="10" fill="url(#skin4)"/>
+    <!-- Swimwear top -->
+    <path d="M -70,140 L -50,180 L -30,200 L 0,185 L 30,200 L 50,180 L 70,140 Q 40,135 0,135 Q -40,135 -70,140 Z" fill="url(#swimwear)"/>
+    <!-- Torso -->
+    <path d="M -65,200 Q -60,280 -55,350 L -50,450 L 50,450 L 55,350 Q 60,280 65,200 Z" fill="url(#skin4)"/>
+    <!-- Swimwear bottom -->
+    <path d="M -70,450 L -75,520 L -65,580 L -50,600 L 50,600 L 65,580 L 75,520 L 70,450 Z" fill="url(#swimwear)"/>
+    <!-- Legs -->
+    <rect x="-52" y="600" width="45" height="320" rx="15" fill="url(#skin4)"/>
+    <rect x="7" y="600" width="45" height="320" rx="15" fill="url(#skin4)"/>
+    <!-- Arms - relaxed pose -->
+    <ellipse cx="-95" cy="280" rx="32" ry="160" fill="url(#skin4)" transform="rotate(-25 -95 280)"/>
+    <ellipse cx="95" cy="280" rx="32" ry="160" fill="url(#skin4)" transform="rotate(25 95 280)"/>
+    <!-- Swimwear pattern -->
+    <circle cx="-35" cy="160" r="8" fill="#fbbf24" opacity="0.5"/>
+    <circle cx="35" cy="160" r="8" fill="#fbbf24" opacity="0.5"/>
+    <circle cx="0" cy="175" r="6" fill="#fbbf24" opacity="0.5"/>
+  </g>
+  
+  <!-- Beach vibes text -->
+  <text x="180" y="950" font-family="Arial, sans-serif" font-size="70" font-weight="300" fill="#fff" opacity="0.1">SUMMER VIBES</text>
+</svg>

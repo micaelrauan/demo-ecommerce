@@ -1,0 +1,51 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient - masculine urban tones -->
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#334155;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#475569;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#52525b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="skin2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4a574;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c49463;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="jacket" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1920" height="1080" fill="url(#bg2)"/>
+  
+  <!-- Urban geometric elements -->
+  <rect x="100" y="100" width="300" height="5" fill="#fff" opacity="0.1"/>
+  <rect x="1500" y="700" width="250" height="5" fill="#fff" opacity="0.1"/>
+  <rect x="150" y="800" width="4" height="200" fill="#fff" opacity="0.08"/>
+  <rect x="1650" y="150" width="4" height="180" fill="#fff" opacity="0.08"/>
+  
+  <!-- Male model silhouette - urban streetwear -->
+  <g transform="translate(1100, 100)">
+    <!-- Head -->
+    <ellipse cx="0" cy="0" rx="85" ry="95" fill="url(#skin2)"/>
+    <!-- Short hair -->
+    <path d="M -70,-30 Q -85,-10 -80,15 L -75,40 Q -60,20 -40,30 Q -25,0 0,-50 Q 25,0 40,30 Q 60,20 75,40 L 80,15 Q 85,-10 70,-30 Q 35,-65 0,-70 Q -35,-65 -70,-30 Z" fill="#1a1a1a"/>
+    <!-- Neck -->
+    <rect x="-30" y="85" width="60" height="55" rx="8" fill="url(#skin2)"/>
+    <!-- Jacket - structured -->
+    <path d="M -130,140 L -140,250 L -120,500 L -90,850 L -50,920 L 50,920 L 90,850 L 120,500 L 140,250 L 130,140 Q 90,135 0,135 Q -90,135 -130,140 Z" fill="url(#jacket)"/>
+    <!-- Collar -->
+    <path d="M -50,140 L-70,170 L -30,200 L 0,160 L 30,200 L 70,170 L 50,140 Z" fill="#0a0a0a"/>
+    <!-- Arms -->
+    <ellipse cx="-145" cy="350" rx="38" ry="200" fill="url(#jacket)" transform="rotate(-10 -145 350)"/>
+    <ellipse cx="145" cy="350" rx="38" ry="200" fill="url(#jacket)" transform="rotate(10 145 350)"/>
+    <!-- Hands in pockets -->
+    <rect x="-85" y="480" width="40" height="15" rx="7" fill="url(#skin2)"/>
+    <rect x="45" y="480" width="40" height="15" rx="7" fill="url(#skin2)"/>
+    <!-- Zipper detail -->
+    <line x1="0" y1="200" x2="0" y2="600" stroke="#64748b" stroke-width="3"/>
+  </g>
+  
+  <!-- Urban accents -->
+  <text x="200" y="950" font-family="Arial, sans-serif" font-size="80" font-weight="300" fill="#fff" opacity="0.05">URBAN</text>
+</svg>
