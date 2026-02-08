@@ -15,14 +15,16 @@ export default function CarrinhoPage() {
     removeItem,
     clearAllItems,
     isLoading,
+    openCart,
   } = useCart();
   const router = useRouter();
 
-  // Redirecionar para o sidebar no desktop
+  // Abrir sidebar no desktop, mostrar página no mobile
   useEffect(() => {
     const checkWidth = () => {
       if (window.innerWidth >= 768) {
         // md breakpoint
+        openCart();
         router.push("/");
       }
     };
@@ -30,7 +32,7 @@ export default function CarrinhoPage() {
     checkWidth();
     window.addEventListener("resize", checkWidth);
     return () => window.removeEventListener("resize", checkWidth);
-  }, [router]);
+  }, [router, openCart]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
