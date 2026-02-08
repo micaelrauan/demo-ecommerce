@@ -14,6 +14,8 @@ interface User {
   id: string;
   name: string;
   email: string;
+  isAdmin: boolean;
+  role: "admin" | "cliente";
 }
 
 interface AuthContextType {
@@ -22,6 +24,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,34 +33,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchUserRole = async (
+    userId: string,
+  ): Promise<"admin" | "cliente"> => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", userId)
+        .single();
+
+      if (error || !data) {
+        console.error("Erro ao buscar role do usuário:", error);
+        return "cliente";
+      }
+
+      return data.role as "admin" | "cliente";
+    } catch (error) {
+      console.error("Erro ao buscar role:", error);
+      return "cliente";
+    }
+  };
+
+  const checkIsAdmin = async (userId: string): Promise<boolean> => {
+    const role = await fetchUserRole(userId);
+    return role === "admin";
+  };
+
   useEffect(() => {
-    // Verificar sessão atual
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
+        const userId = session.user.id;
+        const role = await fetchUserRole(userId);
+        const isAdmin = role === "admin";
+
         setUser({
-          id: session.user.id,
+          id: userId,
           name:
             session.user.user_metadata.name ||
             session.user.email?.split("@")[0] ||
             "Usuário",
           email: session.user.email || "",
+          isAdmin: isAdmin,
+          role: role,
         });
       }
       setIsLoading(false);
     });
 
-    // Escutar mudanças de autenticação
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
+        const userId = session.user.id;
+        const role = await fetchUserRole(userId);
+        const isAdmin = role === "admin";
+
         setUser({
-          id: session.user.id,
+          id: userId,
           name:
             session.user.user_metadata.name ||
             session.user.email?.split("@")[0] ||
             "Usuário",
           email: session.user.email || "",
+          isAdmin: isAdmin,
+          role: role,
         });
       } else {
         setUser(null);
@@ -78,13 +118,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
+      const userId = data.user.id;
+      const role = await fetchUserRole(userId);
+      const isAdmin = role === "admin";
+
       setUser({
-        id: data.user.id,
+        id: userId,
         name:
           data.user.user_metadata.name ||
           data.user.email?.split("@")[0] ||
           "Usuário",
         email: data.user.email || "",
+        isAdmin: isAdmin,
+        role: role,
       });
     }
   };
@@ -105,10 +151,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
+      const userId = data.user.id;
+
+      // Aguardar um pouco para o trigger criar o perfil
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const role = await fetchUserRole(userId);
+      const isAdmin = role === "admin";
+
       setUser({
-        id: data.user.id,
+        id: userId,
         name: name,
         email: data.user.email || "",
+        isAdmin: isAdmin,
+        role: role,
       });
     }
   };
@@ -119,7 +175,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        isLoading,
+        isAdmin: user?.isAdmin || false,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

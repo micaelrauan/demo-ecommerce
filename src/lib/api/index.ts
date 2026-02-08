@@ -34,6 +34,30 @@ export {
 // Users
 export { getProfile, updateProfile, getCurrentUser } from "./users";
 
+// Admin Functions
+export {
+  getDashboardStats,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+  getAllUsers,
+  updateUserRole,
+  getAllOrders,
+  getOrderDetails,
+  getSalesAnalytics,
+} from "./admin";
+
+export type {
+  DashboardStats,
+  CreateProductDTO,
+  UpdateProductDTO,
+  SalesAnalytics,
+  CreateCategoryDTO,
+} from "./admin";
+
 // Types
 export type {
   Profile,
