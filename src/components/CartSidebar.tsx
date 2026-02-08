@@ -48,22 +48,29 @@ export default function CartSidebar() {
 
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay com animação de fade */}
       <div
-        className={`fixed inset-0 bg-black z-50 transition-opacity duration-300 ease-in-out ${
-          isOpen ? "bg-opacity-50" : "bg-opacity-0 pointer-events-none"
+        className={`fixed inset-0 bg-black z-60 transition-all duration-300 ease-in-out ${
+          isOpen
+            ? "opacity-50 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
         onClick={closeCart}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar com animação de slide */}
       <div
-        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col transform transition-transform duration-300 ease-in-out ${
+        className={`fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-70 flex flex-col transform transition-all duration-500 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        {/* Header com animação */}
+        <div
+          className={`flex items-center justify-between p-6 border-b border-gray-200 transition-all duration-300 ${
+            isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+          }`}
+          style={{ transitionDelay: isOpen ? "200ms" : "0ms" }}
+        >
           <div>
             <h2 className="text-xl font-light tracking-wider text-black">
               MEU CARRINHO
@@ -74,7 +81,7 @@ export default function CartSidebar() {
           </div>
           <button
             onClick={closeCart}
-            className="text-gray-500 hover:text-black transition-colors p-2"
+            className="text-gray-500 hover:text-black transition-all duration-200 p-2 hover:rotate-90 hover:scale-110"
           >
             <svg
               className="w-6 h-6"
@@ -99,9 +106,10 @@ export default function CartSidebar() {
               <div className="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full animate-spin" />
             </div>
           ) : items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex flex-col items-center justify-center h-full text-center animate-fadeIn">
               <svg
-                className="w-24 h-24 text-gray-300 mb-4"
+                className="w-24 h-24 text-gray-300 mb-4 animate-bounce"
+                style={{ animationDuration: "2s" }}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -121,17 +129,24 @@ export default function CartSidebar() {
               </p>
               <button
                 onClick={closeCart}
-                className="bg-black text-white px-6 py-3 rounded-lg font-light hover:bg-gray-800 transition-colors"
+                className="bg-black text-white px-6 py-3 rounded-lg font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 Continuar Comprando
               </button>
             </div>
           ) : (
             <div className="space-y-4">
-              {items.map((item) => (
+              {items.map((item, index) => (
                 <div
                   key={item.id}
-                  className="flex gap-4 p-4 bg-gray-50 rounded-lg"
+                  className={`flex gap-4 p-4 bg-gray-50 rounded-lg transition-all duration-500 hover:shadow-md hover:bg-gray-100 ${
+                    isOpen
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-8"
+                  }`}
+                  style={{
+                    transitionDelay: isOpen ? `${300 + index * 100}ms` : "0ms",
+                  }}
                 >
                   {/* Imagem do Produto */}
                   <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0">
@@ -179,24 +194,24 @@ export default function CartSidebar() {
                             Math.max(1, item.quantity - 1),
                           )
                         }
-                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 transition-all duration-200 hover:scale-110 active:scale-95"
                       >
                         -
                       </button>
-                      <span className="text-sm font-light w-8 text-center">
+                      <span className="text-sm font-light w-8 text-center transition-all duration-200">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() =>
                           updateQuantity(item.id, item.quantity + 1)
                         }
-                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                        className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 transition-all duration-200 hover:scale-110 active:scale-95"
                       >
                         +
                       </button>
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="ml-auto text-red-500 hover:text-red-700 transition-colors"
+                        className="ml-auto text-red-500 hover:text-red-700 transition-all duration-200 hover:scale-110 active:scale-95"
                       >
                         <svg
                           className="w-5 h-5"
@@ -220,9 +235,14 @@ export default function CartSidebar() {
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer com animação */}
         {items.length > 0 && (
-          <div className="border-t border-gray-200 p-6 space-y-4">
+          <div
+            className={`border-t border-gray-200 p-6 space-y-4 transition-all duration-500 ${
+              isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
+            style={{ transitionDelay: isOpen ? "400ms" : "0ms" }}
+          >
             {/* Subtotal */}
             <div className="flex justify-between items-center text-lg">
               <span className="font-light text-gray-700">Subtotal</span>
@@ -235,13 +255,13 @@ export default function CartSidebar() {
             <div className="space-y-3">
               <button
                 onClick={handleCheckout}
-                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-colors"
+                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 Finalizar Compra
               </button>
               <button
                 onClick={closeCart}
-                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-light hover:bg-gray-50 transition-colors"
+                className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-light hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 Continuar Comprando
               </button>
