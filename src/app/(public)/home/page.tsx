@@ -11,6 +11,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const { addItem } = useCart();
 
   const heroSlides = [
@@ -19,41 +20,45 @@ export default function HomePage() {
       subtitle: "Coleção Exclusiva 2026",
       cta: "Descobrir Coleção",
       link: "/produtos?categoria=novidades",
-      image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1920&auto=format&fit=crop",
-      textColor: "text-white"
+      image: "/public/slide-1.png",
+      textColor: "text-red-900",
     },
     {
       title: "Clássicos Reinventados",
       subtitle: "Sofisticação Atemporal",
       cta: "Ver Detalhes",
       link: "/produtos?categoria=classicos",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop",
-      textColor: "text-white"
+      image:
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop",
+      textColor: "text-white",
     },
     {
       title: "Luxo Minimalista",
       subtitle: "A Beleza nos Detalhes",
       cta: "Explorar",
       link: "/produtos?categoria=minimalista",
-      image: "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?q=80&w=1920&auto=format&fit=crop",
-      textColor: "text-white"
+      image:
+        "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?q=80&w=1920&auto=format&fit=crop",
+      textColor: "text-white",
     },
     {
       title: "Verão Chic",
       subtitle: "Leveza e Estilo",
       cta: "Comprar Agora",
       link: "/produtos?categoria=verao",
-      image: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?q=80&w=1920&auto=format&fit=crop",
-      textColor: "text-white"
+      image:
+        "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?q=80&w=1920&auto=format&fit=crop",
+      textColor: "text-white",
     },
     {
       title: "Noites Inesquecíveis",
       subtitle: "Looks para Brilhar",
       cta: "Ver Vestidos",
       link: "/produtos?categoria=festa",
-      image: "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?q=80&w=1920&auto=format&fit=crop",
-      textColor: "text-white"
-    }
+      image:
+        "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?q=80&w=1920&auto=format&fit=crop",
+      textColor: "text-white",
+    },
   ];
 
   useEffect(() => {
@@ -84,10 +89,43 @@ export default function HomePage() {
     setEmail("");
   };
 
+  const goToNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const goToPreviousSlide = () => {
+    setCurrentSlide(
+      (prev) => (prev - 1 + heroSlides.length) % heroSlides.length,
+    );
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLElement>) => {
+    setTouchStartX(e.changedTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLElement>) => {
+    if (touchStartX === null) return;
+
+    const distance = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(distance) > 50) {
+      if (distance < 0) {
+        goToNextSlide();
+      } else {
+        goToPreviousSlide();
+      }
+    }
+
+    setTouchStartX(null);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Carousel */}
-      <section className="relative h-150 overflow-hidden">
+      <section
+        className="relative h-[65vh] min-h-115 max-h-195 overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Slides Container */}
         <div className="relative h-full">
           {heroSlides.map((slide, index) => (
