@@ -86,7 +86,7 @@ export default function Navbar() {
     <>
       {/* Top Bar - Carousel de Promoções */}
       <div
-        className={`bg-black text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
+        className={`bg-[#670006] text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -161,7 +161,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <h1 className="text-2xl font-light tracking-wider text-black">
-                SUA LOGO AQUI
+                CONDE SEMIJOIAS
               </h1>
             </Link>
 
@@ -339,8 +339,18 @@ export default function Navbar() {
                               }}
                               className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                />
                               </svg>
                               Sair da Conta
                             </button>
@@ -602,7 +612,7 @@ export default function Navbar() {
             {/* Logo compacta */}
             <Link href="/" className="shrink-0">
               <h1 className="text-lg font-light tracking-wider text-black whitespace-nowrap">
-                SUA LOGO
+                CONDE SEMIJOIAS
               </h1>
             </Link>
 
@@ -776,8 +786,18 @@ export default function Navbar() {
                               }}
                               className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                />
                               </svg>
                               Sair da Conta
                             </button>

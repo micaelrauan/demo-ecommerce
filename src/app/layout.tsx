@@ -18,8 +18,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sua Logo Aqui - E-commerce",
-  description: "Sua loja online com os melhores produtos",
+  title: {
+    default: "CONDE SEMIJOIAS",
+    template: "%s | CONDE SEMIJOIAS",
+  },
+  description:
+    "Loja online da CONDE SEMIJOIAS com colecoes exclusivas e pecas sofisticadas para todos os momentos.",
+  openGraph: {
+    title: "CONDE SEMIJOIAS",
+    description:
+      "Loja online da CONDE SEMIJOIAS com colecoes exclusivas e pecas sofisticadas para todos os momentos.",
+    type: "website",
+    locale: "pt_BR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CONDE SEMIJOIAS",
+    description:
+      "Loja online da CONDE SEMIJOIAS com colecoes exclusivas e pecas sofisticadas para todos os momentos.",
+  },
 };
 
 export default function RootLayout({

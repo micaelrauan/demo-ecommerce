@@ -20,16 +20,15 @@ export default function HomePage() {
       subtitle: "Coleção Exclusiva 2026",
       cta: "Descobrir Coleção",
       link: "/produtos?categoria=novidades",
-      image: "/public/slide-1.png",
-      textColor: "text-red-900",
+      image: "/hero/slide1.png",
+      textColor: "text-white",
     },
     {
       title: "Clássicos Reinventados",
       subtitle: "Sofisticação Atemporal",
       cta: "Ver Detalhes",
       link: "/produtos?categoria=classicos",
-      image:
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop",
+      image: "/hero/slide2.png",
       textColor: "text-white",
     },
     {
@@ -42,7 +41,7 @@ export default function HomePage() {
       textColor: "text-white",
     },
     {
-      title: "Verão Chic",
+      title: "O luxo está na essência",
       subtitle: "Leveza e Estilo",
       cta: "Comprar Agora",
       link: "/produtos?categoria=verao",
@@ -152,16 +151,24 @@ export default function HomePage() {
               {/* Overlay for text readability */}
               <div
                 className={`absolute inset-0 ${
-                  slide.textColor === "text-white"
-                    ? "bg-linear-to-r from-black/50 via-black/30 to-transparent"
-                    : "bg-linear-to-r from-white/40 via-white/20 to-transparent"
+                  index === 0
+                    ? "bg-linear-to-l from-black/55 via-black/25 to-transparent"
+                    : slide.textColor === "text-white"
+                      ? "bg-linear-to-r from-black/50 via-black/30 to-transparent"
+                      : "bg-linear-to-r from-white/40 via-white/20 to-transparent"
                 }`}
               ></div>
 
               {/* Content */}
-              <div className="absolute inset-0 flex items-center justify-center md:justify-start">
+              <div
+                className={`absolute inset-0 flex items-center justify-center ${
+                  index === 0 ? "md:justify-end" : "md:justify-start"
+                }`}
+              >
                 <div
-                  className={`relative z-20 px-6 md:px-16 max-w-2xl ${slide.textColor}`}
+                  className={`relative z-20 px-6 md:px-16 max-w-2xl ${slide.textColor} ${
+                    index === 0 ? "md:text-right" : "md:text-left"
+                  }`}
                 >
                   <h1 className="text-5xl md:text-7xl font-light mb-6 tracking-tight animate-fade-in drop-shadow-lg">
                     {slide.title}

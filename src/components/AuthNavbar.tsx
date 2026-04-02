@@ -15,7 +15,7 @@ export default function AuthNavbar() {
           {/* Logo */}
           <Link href="/" className="shrink-0">
             <h1 className="text-xl font-light tracking-wider text-black">
-              SUA LOGO AQUI
+              CONDE SEMIJOIAS
             </h1>
           </Link>
 
