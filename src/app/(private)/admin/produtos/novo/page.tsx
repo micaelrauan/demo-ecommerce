@@ -1,12 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getCategories } from "@/lib/api";
+
+type CategoryOption = {
+  id: string;
+  name: string;
+};
 
 export default function NovoProduto() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -15,6 +23,19 @@ export default function NovoProduto() {
     category_id: "",
     image_url: "",
   });
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error("Erro ao carregar categorias:", error);
+      }
+    };
+
+    void loadCategories();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,9 +170,11 @@ export default function NovoProduto() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors bg-white"
                 >
                   <option value="">Selecione uma categoria</option>
-                  <option value="1">Roupas</option>
-                  <option value="2">Acessórios</option>
-                  <option value="3">Calçados</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

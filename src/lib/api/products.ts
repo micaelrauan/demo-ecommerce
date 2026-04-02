@@ -1,116 +1,208 @@
-import { supabase } from "../supabase";
-import type { Product, Category } from "../types";
+import type {
+  NuvemshopCategory,
+  NuvemshopProduct,
+} from "../../../types/nuvemshop";
+import { getMainImage } from "../nuvemshop";
+import type { Category, Product } from "../types";
 
-// ============================================
-// PRODUTOS
-// ============================================
+interface GetProductsParams {
+  page?: number;
+  per_page?: number;
+  category_id?: number;
+}
 
-/**
- * Busca todos os produtos ativos
- */
-export async function getProducts() {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      category:categories(*)
-    `,
-    )
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+interface ProductsApiResponse {
+  products: NuvemshopProduct[];
+  total: number;
+}
 
-  if (error) throw error;
-  return data as Product[];
+let productsCache: Product[] | null = null;
+let categoriesCache: Category[] | null = null;
+
+function getApiUrl(path: string, params?: Record<string, string>): string {
+  const url = new URL(path, window.location.origin);
+
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.set(key, value);
+    });
+  }
+
+  return url.toString();
+}
+
+function mapCategory(category: NuvemshopCategory): Category {
+  return {
+    id: String(category.id),
+    name: category.name.pt,
+    description: undefined,
+    slug: category.handle.pt,
+    image_url: undefined,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
+}
+
+function mapProduct(product: NuvemshopProduct): Product {
+  const firstVariant = product.variants[0];
+  const firstCategory = product.categories[0];
+  const category = firstCategory
+    ? {
+        id: String(firstCategory.id),
+        name: firstCategory.name.pt,
+        description: undefined,
+        slug: String(firstCategory.id),
+        image_url: undefined,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }
+    : undefined;
+
+  return {
+    id: String(product.id),
+    name: product.name.pt,
+    description: product.description.pt,
+    price: Number(firstVariant?.price || 0),
+    stock: firstVariant?.stock ?? 0,
+    category_id: firstCategory ? String(firstCategory.id) : undefined,
+    image_url: getMainImage(product),
+    slug: product.handle.pt,
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    category,
+  };
+}
+
+async function fetchProductsFromApi(
+  params?: GetProductsParams,
+): Promise<Product[]> {
+  const query: Record<string, string> = {
+    page: String(params?.page ?? 1),
+    per_page: String(params?.per_page ?? 100),
+  };
+
+  if (typeof params?.category_id === "number") {
+    query.category_id = String(params.category_id);
+  }
+
+  const response = await fetch(getApiUrl("/api/produtos", query));
+  if (!response.ok) {
+    throw new Error("Erro ao carregar produtos");
+  }
+
+  const data = (await response.json()) as ProductsApiResponse;
+  return data.products.map(mapProduct);
+}
+
+async function fetchCategoriesFromApi(): Promise<Category[]> {
+  const response = await fetch(getApiUrl("/api/categorias"));
+  if (!response.ok) {
+    throw new Error("Erro ao carregar categorias");
+  }
+
+  const data = (await response.json()) as NuvemshopCategory[];
+  return data.map(mapCategory).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
- * Busca produto por slug
+ * Replaces the local products cache.
+ */
+export function replaceProductsCache(nextProducts: Product[]): void {
+  productsCache = nextProducts;
+}
+
+/**
+ * Replaces the local categories cache.
+ */
+export function replaceCategoriesCache(nextCategories: Category[]): void {
+  categoriesCache = nextCategories;
+}
+
+/**
+ * Fetches all products or products filtered by query params.
+ */
+export async function getProducts(params?: GetProductsParams) {
+  if (!params && productsCache) {
+    return productsCache;
+  }
+
+  const products = await fetchProductsFromApi(params);
+
+  if (!params) {
+    productsCache = products;
+  }
+
+  return products;
+}
+
+/**
+ * Fetches a single product by slug.
  */
 export async function getProductBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      category:categories(*)
-    `,
-    )
-    .eq("slug", slug)
-    .eq("is_active", true)
-    .single();
+  const products = await getProducts();
+  const product = products.find((item) => item.slug === slug);
 
-  if (error) throw error;
-  return data as Product;
+  if (!product) {
+    throw new Error("Produto nao encontrado");
+  }
+
+  return product;
 }
 
 /**
- * Busca produtos por categoria
+ * Fetches products by category slug.
  */
 export async function getProductsByCategory(categorySlug: string) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      category:categories!inner(*)
-    `,
-    )
-    .eq("category.slug", categorySlug)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
+  const categories = await getCategories();
+  const category = categories.find((item) => item.slug === categorySlug);
 
-  if (error) throw error;
-  return data as Product[];
+  if (!category) {
+    return [];
+  }
+
+  const products = await getProducts();
+  return products.filter((product) => product.category_id === category.id);
 }
 
 /**
- * Busca produtos (com filtros opcionais)
+ * Searches products by name or description.
  */
 export async function searchProducts(query: string) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      category:categories(*)
-    `,
-    )
-    .eq("is_active", true)
-    .ilike("name", `%${query}%`)
-    .order("created_at", { ascending: false });
+  const normalized = query.trim().toLowerCase();
+  const products = await getProducts();
 
-  if (error) throw error;
-  return data as Product[];
+  return products.filter((product) => {
+    return (
+      product.name.toLowerCase().includes(normalized) ||
+      (product.description || "").toLowerCase().includes(normalized)
+    );
+  });
 }
 
-// ============================================
-// CATEGORIAS
-// ============================================
-
 /**
- * Busca todas as categorias
+ * Fetches all categories.
  */
 export async function getCategories() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("name");
+  if (categoriesCache) {
+    return categoriesCache;
+  }
 
-  if (error) throw error;
-  return data as Category[];
+  const categories = await fetchCategoriesFromApi();
+  categoriesCache = categories;
+  return categories;
 }
 
 /**
- * Busca categoria por slug
+ * Fetches a category by slug.
  */
 export async function getCategoryBySlug(slug: string) {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .eq("slug", slug)
-    .single();
+  const categories = await getCategories();
+  const category = categories.find((item) => item.slug === slug);
 
-  if (error) throw error;
-  return data as Category;
+  if (!category) {
+    throw new Error("Categoria nao encontrada");
+  }
+
+  return category;
 }

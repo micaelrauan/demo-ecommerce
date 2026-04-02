@@ -4,20 +4,31 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getProducts } from "@/lib/api";
+import { getCategories, getProducts } from "@/lib/api";
 import { deleteProduct } from "@/lib/api/admin";
-import type { Product } from "@/lib/types";
+import type { Category, Product } from "@/lib/types";
 
 export default function AdminProdutos() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
 
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
+
+  const loadCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data || []);
+    } catch (error) {
+      console.error("Erro ao carregar categorias:", error);
+    }
+  };
 
   const loadProducts = async () => {
     try {
@@ -96,9 +107,11 @@ export default function AdminProdutos() {
             className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black transition-colors bg-white"
           >
             <option value="all">Todas Categorias</option>
-            <option value="1">Roupas</option>
-            <option value="2">Acessórios</option>
-            <option value="3">Calçados</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

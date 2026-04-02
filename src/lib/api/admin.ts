@@ -1,8 +1,41 @@
-import { supabase } from "../supabase";
+import {
+  getCategories,
+  getProducts,
+  replaceCategoriesCache,
+  replaceProductsCache,
+} from "./products";
+import { mockOrderItems, mockOrders, mockProfiles } from "../mock-data";
+import type { Category, Product } from "../types";
 
 // ============================================
 // ADMIN - DASHBOARD STATS
 // ============================================
+
+interface DashboardRecentOrder {
+  id: string;
+  user_id: string;
+  status: string;
+  total: number;
+  shipping_address_street: string;
+  shipping_address_number: string;
+  shipping_address_complement?: string;
+  shipping_address_neighborhood: string;
+  shipping_address_city: string;
+  shipping_address_state: string;
+  shipping_address_zipcode: string;
+  created_at: string;
+  updated_at: string;
+  profiles: {
+    name: string;
+    email: string;
+  };
+}
+
+interface DashboardTopProduct {
+  product_id: string;
+  quantity: number;
+  products?: Product;
+}
 
 export interface DashboardStats {
   totalProducts: number;
@@ -11,89 +44,70 @@ export interface DashboardStats {
   monthRevenue: number;
   pendingOrders: number;
   lowStockProducts: number;
-  recentOrders: any[];
-  topProducts: any[];
+  recentOrders: DashboardRecentOrder[];
+  topProducts: DashboardTopProduct[];
 }
 
+/**
+ * Returns dashboard metrics for the admin overview.
+ */
 export async function getDashboardStats(): Promise<DashboardStats> {
-  try {
-    // Total de produtos
-    const { count: totalProducts } = await supabase
-      .from("products")
-      .select("*", { count: "exact", head: true });
+  const [products] = await Promise.all([getProducts()]);
 
-    // Total de pedidos
-    const { count: totalOrders } = await supabase
-      .from("orders")
-      .select("*", { count: "exact", head: true });
+  const monthRevenue = mockOrders
+    .filter((order) => order.status === "completed")
+    .reduce((sum, order) => sum + order.total, 0);
 
-    // Total de usuários
-    const { count: totalUsers } = await supabase
-      .from("profiles")
-      .select("*", { count: "exact", head: true });
+  const pendingOrders = mockOrders.filter(
+    (order) => order.status === "pending",
+  ).length;
 
-    // Receita do mês
-    const currentMonth = new Date();
-    currentMonth.setDate(1);
-    const { data: monthOrders } = await supabase
-      .from("orders")
-      .select("total")
-      .gte("created_at", currentMonth.toISOString())
-      .eq("status", "completed");
+  const lowStockProducts = products.filter(
+    (product) => product.stock <= 10,
+  ).length;
 
-    const monthRevenue =
-      monthOrders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0;
-
-    // Pedidos pendentes
-    const { count: pendingOrders } = await supabase
-      .from("orders")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending");
-
-    // Produtos com estoque baixo
-    const { count: lowStockProducts } = await supabase
-      .from("products")
-      .select("*", { count: "exact", head: true })
-      .lte("stock", 10);
-
-    // Pedidos recentes
-    const { data: recentOrders } = await supabase
-      .from("orders")
-      .select(
-        `
-        *,
-        profiles:user_id (name, email)
-      `,
-      )
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    // Produtos mais vendidos
-    const { data: topProducts } = await supabase
-      .from("order_items")
-      .select(
-        `
-        product_id,
-        quantity,
-        products (name, price, images)
-      `,
-      )
-      .limit(5);
+  const recentOrders = mockOrders.slice(0, 5).map((order) => {
+    const profile = mockProfiles.find((entry) => entry.id === order.user_id);
 
     return {
-      totalProducts: totalProducts || 0,
-      totalOrders: totalOrders || 0,
-      totalUsers: totalUsers || 0,
-      monthRevenue,
-      pendingOrders: pendingOrders || 0,
-      lowStockProducts: lowStockProducts || 0,
-      recentOrders: recentOrders || [],
-      topProducts: topProducts || [],
+      ...order,
+      profiles: {
+        name: profile?.name || "Cliente",
+        email: profile
+          ? `${profile.name.toLowerCase().replace(/\s+/g, ".")}@demo.com`
+          : "cliente@demo.com",
+      },
     };
-  } catch (error) {
-    console.error("Erro ao carregar estatísticas:", error);
-    throw error;
-  }
+  });
+
+  const topProductsById = mockOrderItems.reduce<Record<string, number>>(
+    (accumulator, item) => {
+      accumulator[item.product_id] =
+        (accumulator[item.product_id] || 0) + item.quantity;
+      return accumulator;
+    },
+    {},
+  );
+
+  const topProducts = Object.entries(topProductsById)
+    .map(([productId, quantity]) => ({
+      product_id: productId,
+      quantity,
+      products: products.find((product) => product.id === productId),
+    }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 5);
+
+  return {
+    totalProducts: products.length,
+    totalOrders: mockOrders.length,
+    totalUsers: mockProfiles.length,
+    monthRevenue,
+    pendingOrders,
+    lowStockProducts,
+    recentOrders,
+    topProducts,
+  };
 }
 
 // ============================================
@@ -115,72 +129,111 @@ export interface UpdateProductDTO extends Partial<CreateProductDTO> {
   id: string;
 }
 
-export async function createProduct(product: CreateProductDTO) {
-  try {
-    const slug = product.name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-    const { data, error } = await supabase
-      .from("products")
-      .insert({
-        ...product,
-        slug,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao criar produto:", error);
-    throw error;
-  }
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
-export async function updateProduct(product: UpdateProductDTO) {
-  try {
-    const { id, ...updates } = product;
+function mapProductForCache(
+  product: CreateProductDTO,
+  id: string,
+  category?: Category,
+): Product {
+  const now = new Date().toISOString();
 
-    const updateData: any = { ...updates };
+  return {
+    id,
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    stock: product.stock,
+    category_id: product.category_id,
+    image_url: product.images?.[0] || "",
+    slug: slugify(product.name),
+    is_active: true,
+    created_at: now,
+    updated_at: now,
+    category,
+  };
+}
 
-    if (updates.name) {
-      updateData.slug = updates.name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+/**
+ * Creates a new product in the local admin cache.
+ */
+export async function createProduct(
+  product: CreateProductDTO,
+): Promise<Product> {
+  const categories = await getCategories();
+  const category = categories.find((item) => item.id === product.category_id);
+  const cachedProducts = await getProducts();
+  const created = mapProductForCache(product, `prod-${Date.now()}`, category);
+
+  replaceProductsCache([created, ...cachedProducts]);
+  return created;
+}
+
+/**
+ * Updates a cached product for the current admin session.
+ */
+export async function updateProduct(
+  product: UpdateProductDTO,
+): Promise<Product> {
+  const categories = await getCategories();
+  const cachedProducts = await getProducts();
+  const nextProducts = cachedProducts.map((item) => {
+    if (item.id !== product.id) {
+      return item;
     }
 
-    const { data, error } = await supabase
-      .from("products")
-      .update(updateData)
-      .eq("id", id)
-      .select()
-      .single();
+    const name = product.name ?? item.name;
+    const description = product.description ?? item.description ?? "";
+    const price = product.price ?? item.price;
+    const stock = product.stock ?? item.stock;
+    const categoryId = product.category_id ?? item.category_id ?? "";
+    const category = categories.find((entry) => entry.id === categoryId);
+    const images = product.images ?? (item.image_url ? [item.image_url] : []);
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao atualizar produto:", error);
-    throw error;
+    return {
+      ...item,
+      ...product,
+      name,
+      description,
+      price,
+      stock,
+      category_id: categoryId,
+      image_url: images[0] || item.image_url,
+      slug: slugify(name),
+      updated_at: new Date().toISOString(),
+      category,
+    };
+  });
+
+  const updated = nextProducts.find((item) => item.id === product.id);
+  if (!updated) {
+    throw new Error("Produto nao encontrado");
   }
+
+  replaceProductsCache(nextProducts);
+  return updated;
 }
 
-export async function deleteProduct(id: string) {
-  try {
-    const { error } = await supabase.from("products").delete().eq("id", id);
+/**
+ * Deletes a cached product for the current admin session.
+ */
+export async function deleteProduct(id: string): Promise<boolean> {
+  const cachedProducts = await getProducts();
+  const nextProducts = cachedProducts.filter((item) => item.id !== id);
 
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error("Erro ao deletar produto:", error);
-    throw error;
+  if (nextProducts.length === cachedProducts.length) {
+    throw new Error("Produto nao encontrado");
   }
+
+  replaceProductsCache(nextProducts);
+  return true;
 }
 
 // ============================================
@@ -192,170 +245,158 @@ export interface CreateCategoryDTO {
   description?: string;
 }
 
-export async function createCategory(category: CreateCategoryDTO) {
-  try {
-    const slug = category.name
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+function mapCategoryForCache(
+  category: CreateCategoryDTO,
+  id: string,
+): Category {
+  const now = new Date().toISOString();
 
-    const { data, error } = await supabase
-      .from("categories")
-      .insert({
-        ...category,
-        slug,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao criar categoria:", error);
-    throw error;
-  }
+  return {
+    id,
+    name: category.name,
+    description: category.description,
+    slug: slugify(category.name),
+    image_url: undefined,
+    created_at: now,
+    updated_at: now,
+  };
 }
 
+/**
+ * Creates a category in the local admin cache.
+ */
+export async function createCategory(
+  category: CreateCategoryDTO,
+): Promise<Category> {
+  const cachedCategories = await getCategories();
+  const created = mapCategoryForCache(category, `cat-${Date.now()}`);
+  replaceCategoriesCache([...cachedCategories, created]);
+  return created;
+}
+
+/**
+ * Updates a cached category for the current admin session.
+ */
 export async function updateCategory(
   id: string,
   updates: Partial<CreateCategoryDTO>,
-) {
-  try {
-    const updateData: any = { ...updates };
-
-    if (updates.name) {
-      updateData.slug = updates.name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+): Promise<Category> {
+  const cachedCategories = await getCategories();
+  const nextCategories = cachedCategories.map((item) => {
+    if (item.id !== id) {
+      return item;
     }
 
-    const { data, error } = await supabase
-      .from("categories")
-      .update(updateData)
-      .eq("id", id)
-      .select()
-      .single();
+    return {
+      ...item,
+      ...updates,
+      slug: updates.name ? slugify(updates.name) : item.slug,
+      updated_at: new Date().toISOString(),
+    };
+  });
 
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao atualizar categoria:", error);
-    throw error;
+  const updated = nextCategories.find((item) => item.id === id);
+  if (!updated) {
+    throw new Error("Categoria nao encontrada");
   }
+
+  replaceCategoriesCache(nextCategories);
+  return updated;
 }
 
-export async function deleteCategory(id: string) {
-  try {
-    const { error } = await supabase.from("categories").delete().eq("id", id);
+/**
+ * Deletes a cached category for the current admin session.
+ */
+export async function deleteCategory(id: string): Promise<boolean> {
+  const cachedCategories = await getCategories();
+  const nextCategories = cachedCategories.filter((item) => item.id !== id);
 
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error("Erro ao deletar categoria:", error);
-    throw error;
+  if (nextCategories.length === cachedCategories.length) {
+    throw new Error("Categoria nao encontrada");
   }
+
+  replaceCategoriesCache(nextCategories);
+  return true;
 }
 
 // ============================================
 // ADMIN - USERS
 // ============================================
 
+/**
+ * Returns the mocked admin user list.
+ */
 export async function getAllUsers() {
-  try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select(
-        `
-        *,
-        orders:orders(count)
-      `,
-      )
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao carregar usuários:", error);
-    throw error;
-  }
+  return mockProfiles.map((profile) => ({
+    ...profile,
+    email: `${profile.name.toLowerCase().replace(/\s+/g, ".")}@demo.com`,
+    role:
+      profile.id === "admin-user" ? ("admin" as const) : ("cliente" as const),
+    orders: [
+      {
+        count: mockOrders.filter((order) => order.user_id === profile.id)
+          .length,
+      },
+    ],
+  }));
 }
 
+/**
+ * Updates the cached role for a demo user entry.
+ */
 export async function updateUserRole(
   userId: string,
   role: "admin" | "cliente",
 ) {
-  try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .update({ role })
-      .eq("id", userId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao atualizar role:", error);
-    throw error;
+  const target = mockProfiles.find((entry) => entry.id === userId);
+  if (!target) {
+    throw new Error("Usuario nao encontrado");
   }
+
+  return {
+    ...target,
+    role,
+  };
 }
 
 // ============================================
 // ADMIN - ORDERS
 // ============================================
 
+/**
+ * Returns the mocked order list.
+ */
 export async function getAllOrders() {
-  try {
-    const { data, error } = await supabase
-      .from("orders")
-      .select(
-        `
-        *,
-        profiles:user_id (name, email),
-        order_items (
-          *,
-          products (name, images)
-        )
-      `,
-      )
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao carregar pedidos:", error);
-    throw error;
-  }
+  return mockOrders.map((order) => ({
+    ...order,
+    profiles: {
+      email: `${(mockProfiles.find((entry) => entry.id === order.user_id)?.name || "cliente").toLowerCase().replace(/\s+/g, ".")}@demo.com`,
+    },
+    order_items: mockOrderItems.filter((item) => item.order_id === order.id),
+  }));
 }
 
+/**
+ * Returns a mocked order detail entry.
+ */
 export async function getOrderDetails(orderId: string) {
-  try {
-    const { data, error } = await supabase
-      .from("orders")
-      .select(
-        `
-        *,
-        profiles:user_id (name, email),
-        order_items (
-          *,
-          products (name, images, price)
-        )
-      `,
-      )
-      .eq("id", orderId)
-      .single();
-
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error("Erro ao carregar detalhes do pedido:", error);
-    throw error;
+  const order = mockOrders.find((entry) => entry.id === orderId);
+  if (!order) {
+    throw new Error("Pedido nao encontrado");
   }
+
+  return {
+    ...order,
+    profiles: {
+      email: `${(mockProfiles.find((entry) => entry.id === order.user_id)?.name || "cliente").toLowerCase().replace(/\s+/g, ".")}@demo.com`,
+    },
+    order_items: mockOrderItems
+      .filter((item) => item.order_id === order.id)
+      .map((item) => ({
+        ...item,
+        products: undefined,
+      })),
+  };
 }
 
 // ============================================
@@ -369,62 +410,59 @@ export interface SalesAnalytics {
   ordersByStatus: { status: string; count: number }[];
 }
 
+/**
+ * Returns demo analytics data for the admin reports page.
+ */
 export async function getSalesAnalytics(
-  startDate: string,
-  endDate: string,
+  _startDate: string,
+  _endDate: string,
 ): Promise<SalesAnalytics> {
-  try {
-    // Vendas diárias
-    const { data: sales } = await supabase
-      .from("orders")
-      .select("created_at, total")
-      .gte("created_at", startDate)
-      .lte("created_at", endDate)
-      .eq("status", "completed");
+  const products = await getProducts();
+  const dailySales = mockOrders.map((order) => ({
+    date: order.created_at.split("T")[0],
+    total: order.total,
+  }));
 
-    const dailySales =
-      sales?.reduce((acc: any[], order) => {
-        const date = new Date(order.created_at).toISOString().split("T")[0];
-        const existing = acc.find((item) => item.date === date);
-        if (existing) {
-          existing.total += order.total;
-        } else {
-          acc.push({ date, total: order.total });
-        }
-        return acc;
-      }, []) || [];
+  const topCategoriesMap = mockOrderItems.reduce<Record<string, number>>(
+    (accumulator, item) => {
+      const product = products.find((entry) => entry.id === item.product_id);
+      const key = product?.category?.name || product?.name || item.product_id;
+      accumulator[key] = (accumulator[key] || 0) + item.quantity;
+      return accumulator;
+    },
+    {},
+  );
 
-    // Top categorias
-    const { data: categoryData } = await supabase.from("order_items").select(`
-        products (category_id, categories (name))
-      `);
+  const topCategories = Object.entries(topCategoriesMap).map(
+    ([category, total]) => ({
+      category,
+      total,
+    }),
+  );
 
-    // Pedidos por status
-    const { data: statusData } = await supabase
-      .from("orders")
-      .select("status")
-      .gte("created_at", startDate)
-      .lte("created_at", endDate);
+  const ordersByStatusMap = mockOrders.reduce<Record<string, number>>(
+    (accumulator, order) => {
+      accumulator[order.status] = (accumulator[order.status] || 0) + 1;
+      return accumulator;
+    },
+    {},
+  );
 
-    const ordersByStatus =
-      statusData?.reduce((acc: any[], order) => {
-        const existing = acc.find((item) => item.status === order.status);
-        if (existing) {
-          existing.count++;
-        } else {
-          acc.push({ status: order.status, count: 1 });
-        }
-        return acc;
-      }, []) || [];
+  const ordersByStatus = Object.entries(ordersByStatusMap).map(
+    ([status, count]) => ({
+      status,
+      count,
+    }),
+  );
 
-    return {
-      dailySales,
-      topCategories: [],
-      paymentMethods: [],
-      ordersByStatus,
-    };
-  } catch (error) {
-    console.error("Erro ao carregar analytics:", error);
-    throw error;
-  }
+  return {
+    dailySales,
+    topCategories,
+    paymentMethods: [
+      { method: "PIX", count: 5 },
+      { method: "Cartao", count: 3 },
+      { method: "Boleto", count: 1 },
+    ],
+    ordersByStatus,
+  };
 }

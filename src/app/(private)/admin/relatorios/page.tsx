@@ -1,9 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getSalesAnalytics, type SalesAnalytics } from "@/lib/api/admin";
+
+const PERIOD_DAYS: Record<string, number> = {
+  dia: 1,
+  semana: 7,
+  mes: 30,
+  ano: 365,
+};
 
 export default function AdminRelatorios() {
   const [periodo, setPeriodo] = useState("mes");
+  const [analytics, setAnalytics] = useState<SalesAnalytics>({
+    dailySales: [],
+    topCategories: [],
+    paymentMethods: [],
+    ordersByStatus: [],
+  });
+
+  useEffect(() => {
+    const loadAnalytics = async () => {
+      const days = PERIOD_DAYS[periodo] || PERIOD_DAYS.mes;
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - days);
+
+      try {
+        const data = await getSalesAnalytics(
+          startDate.toISOString(),
+          endDate.toISOString(),
+        );
+        setAnalytics(data);
+      } catch (error) {
+        console.error("Erro ao carregar analytics:", error);
+      }
+    };
+
+    void loadAnalytics();
+  }, [periodo]);
+
+  const totalRevenue = analytics.dailySales.reduce(
+    (sum, item) => sum + item.total,
+    0,
+  );
+  const totalSales = analytics.ordersByStatus.reduce(
+    (sum, item) => sum + item.count,
+    0,
+  );
+  const ticketMedio = totalSales > 0 ? totalRevenue / totalSales : 0;
+  const conversionRate = totalSales > 0 ? 3.2 : 0;
 
   return (
     <div className="p-8">
@@ -38,7 +84,9 @@ export default function AdminRelatorios() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-sm text-gray-600 mb-2">Receita Total</p>
-          <p className="text-3xl font-light text-black">R$ 45.780,50</p>
+          <p className="text-3xl font-light text-black">
+            R$ {totalRevenue.toFixed(2)}
+          </p>
           <p className="text-sm text-green-600 mt-2">
             ↑ 12% vs período anterior
           </p>
@@ -46,7 +94,7 @@ export default function AdminRelatorios() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-sm text-gray-600 mb-2">Vendas</p>
-          <p className="text-3xl font-light text-black">342</p>
+          <p className="text-3xl font-light text-black">{totalSales}</p>
           <p className="text-sm text-green-600 mt-2">
             ↑ 8% vs período anterior
           </p>
@@ -54,7 +102,9 @@ export default function AdminRelatorios() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-sm text-gray-600 mb-2">Ticket Médio</p>
-          <p className="text-3xl font-light text-black">R$ 133,92</p>
+          <p className="text-3xl font-light text-black">
+            R$ {ticketMedio.toFixed(2)}
+          </p>
           <p className="text-sm text-green-600 mt-2">
             ↑ 4% vs período anterior
           </p>
@@ -62,7 +112,7 @@ export default function AdminRelatorios() {
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-sm text-gray-600 mb-2">Taxa de Conversão</p>
-          <p className="text-3xl font-light text-black">3.2%</p>
+          <p className="text-3xl font-light text-black">{conversionRate}%</p>
           <p className="text-sm text-red-600 mt-2">
             ↓ 0.5% vs período anterior
           </p>
@@ -91,26 +141,21 @@ export default function AdminRelatorios() {
             Produtos Mais Vendidos
           </h2>
           <div className="space-y-4">
-            {[
-              { name: "Camiseta Básica Branca", sales: 45, revenue: 2250 },
-              { name: "Calça Jeans Skinny", sales: 38, revenue: 4560 },
-              { name: "Vestido Floral Longo", sales: 32, revenue: 4480 },
-              { name: "Tênis Casual Branco", sales: 28, revenue: 3920 },
-            ].map((product, index) => (
+            {analytics.topCategories.map((category, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
               >
                 <div>
                   <p className="text-sm font-medium text-black">
-                    {product.name}
+                    {category.category}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {product.sales} vendas
+                    {category.total} vendas
                   </p>
                 </div>
                 <p className="text-sm font-medium text-green-600">
-                  R$ {product.revenue.toFixed(2)}
+                  R$ {category.total.toFixed(2)}
                 </p>
               </div>
             ))}
@@ -122,22 +167,20 @@ export default function AdminRelatorios() {
             Categorias Mais Vendidas
           </h2>
           <div className="space-y-3">
-            {[
-              { name: "Roupas", percentage: 45 },
-              { name: "Calçados", percentage: 30 },
-              { name: "Acessórios", percentage: 25 },
-            ].map((category, index) => (
+            {analytics.topCategories.map((category, index) => (
               <div key={index}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-700">{category.name}</span>
+                  <span className="text-sm text-gray-700">
+                    {category.category}
+                  </span>
                   <span className="text-sm font-medium text-black">
-                    {category.percentage}%
+                    {category.total}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-black h-2 rounded-full"
-                    style={{ width: `${category.percentage}%` }}
+                    style={{ width: `${Math.min(category.total * 10, 100)}%` }}
                   ></div>
                 </div>
               </div>
@@ -150,11 +193,7 @@ export default function AdminRelatorios() {
             Métodos de Pagamento
           </h2>
           <div className="space-y-4">
-            {[
-              { method: "PIX", count: 180, percentage: 52.6 },
-              { method: "Cartão de Crédito", count: 120, percentage: 35.1 },
-              { method: "Boleto", count: 42, percentage: 12.3 },
-            ].map((payment, index) => (
+            {analytics.paymentMethods.map((payment, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
@@ -168,7 +207,7 @@ export default function AdminRelatorios() {
                   </p>
                 </div>
                 <p className="text-sm font-medium text-black">
-                  {payment.percentage}%
+                  {payment.count}
                 </p>
               </div>
             ))}

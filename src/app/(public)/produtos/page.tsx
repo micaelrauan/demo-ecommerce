@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
-import { getProducts } from "@/lib/api/products";
+import { getCategories, getProducts } from "@/lib/api/products";
 import type { Product } from "@/lib/types";
 
 interface Category {
@@ -27,35 +27,35 @@ export default function ProdutosPage() {
   const [showFilters, setShowFilters] = useState(true);
   const { addItem } = useCart();
 
-  // Carregar produtos e categorias
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   useEffect(() => {
     loadData();
-  }, []);
+  }, [selectedCategory]);
+
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await getCategories();
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error("Erro ao carregar categorias:", error);
+    }
+  };
 
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const productsData = await getProducts();
+      const categoryId =
+        selectedCategory === "all" ? undefined : Number(selectedCategory);
+      const productsData = await getProducts(
+        typeof categoryId === "number" && !Number.isNaN(categoryId)
+          ? { category_id: categoryId }
+          : undefined,
+      );
       setProducts(productsData);
       setFilteredProducts(productsData);
-
-      // Extrair categorias únicas dos produtos
-      const uniqueCategories = productsData.reduce(
-        (acc: Category[], product) => {
-          if (
-            product.category &&
-            !acc.find((c) => c.id === product.category!.id)
-          ) {
-            acc.push({
-              id: product.category.id,
-              name: product.category.name,
-            });
-          }
-          return acc;
-        },
-        [],
-      );
-      setCategories(uniqueCategories);
     } catch (error) {
       console.error("Erro ao carregar produtos:", error);
     } finally {
