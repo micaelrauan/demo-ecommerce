@@ -36,19 +36,6 @@ No painel do Vercel, configure as seguintes variáveis:
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://ciheewdlnjxfgwqxzkhv.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=[sua-chave-anonima]
-NEXT_PUBLIC_API_URL=[sua-api-url]
-```
-
-### Para Desenvolvimento
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
-
-### Para Produção
-
-```
-NEXT_PUBLIC_API_URL=https://seu-api-domain.com/api
 ```
 
 ## Informações de Build
@@ -84,10 +71,10 @@ NEXT_PUBLIC_API_URL=https://seu-api-domain.com/api
 - Verificar variáveis de ambiente no Vercel
 - Verificar console do navegador (F12) para erros
 
-### API não conecta
+### Erro de conexão no Supabase
 
-- Verificar `NEXT_PUBLIC_API_URL` está correta
-- Verificar CORS no backend
+- Verificar `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Verificar políticas RLS e permissões das tabelas no Supabase
 
 ## Próximos Passos
 
