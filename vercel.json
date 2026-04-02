@@ -2,12 +2,5 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "framework": "nextjs",
-  "outputDirectory": ".next",
-  "redirects": [
-    {
-      "source": "/((?!api).*)",
-      "destination": "/",
-      "statusCode": 404
-    }
-  ]
+  "outputDirectory": ".next"
 }
