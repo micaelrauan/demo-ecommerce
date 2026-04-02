@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# backend (separate NestJS project - not deployed to Vercel)
+/backend
+
 # next.js
 /.next/
 /out/
