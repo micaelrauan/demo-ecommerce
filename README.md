@@ -44,7 +44,7 @@ Caso prefira um backend customizado ao invés do Supabase:
 - **TypeORM** - ORM
 - **PostgreSQL** - Banco de dados
 - **JWT** - Autenticação
-- **Bcrypt** - Criptografia
+- **Clerk** - Autenticação gerenciada
 
 ## ⚙️ Configuração e Instalação
 
@@ -130,7 +130,7 @@ npm run dev
 - ✅ **Navbar responsiva** com auto-hide ao scroll
 - ✅ **Design minimalista** preto e branco com tipografia elegante
 - ✅ **Carrossel de promoções** no topo
-- ✅ **Sistema de autenticação** completo (Login/Cadastro/Recuperação)
+- ✅ **Sistema de autenticação** com Clerk
 - ✅ **Página de conta** do usuário
 - ✅ **Proteção de rotas** automática
 - ✅ **Persistência de sessão**
@@ -138,10 +138,9 @@ npm run dev
 ### Backend (Supabase)
 
 - ✅ **Autenticação completa**
-  - Email/Senha
-  - OAuth (Google, GitHub, etc) - configurável
-  - Recuperação de senha
-  - Email de confirmação
+  - Clerk como provedor principal
+  - Fluxo de login e cadastro via modal/página
+  - Recuperação e verificação gerenciadas pelo Clerk
 - ✅ **Banco de dados PostgreSQL**
   - Perfis de usuário
   - Produtos e categorias
