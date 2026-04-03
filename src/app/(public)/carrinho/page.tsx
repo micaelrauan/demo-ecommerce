@@ -5,15 +5,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import CheckoutButton from "@/components/CheckoutButton";
 
 export default function CarrinhoPage() {
   const {
     items,
-    total,
+    totalFormatted,
     itemCount,
     updateQuantity,
     removeItem,
-    clearAllItems,
+    clearCart,
     isLoading,
     openCart,
   } = useCart();
@@ -34,15 +35,11 @@ export default function CarrinhoPage() {
     return () => window.removeEventListener("resize", checkWidth);
   }, [router, openCart]);
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (valueInCents: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(value);
-  };
-
-  const handleCheckout = () => {
-    router.push("/checkout");
+    }).format(valueInCents / 100);
   };
 
   if (isLoading) {
@@ -124,15 +121,15 @@ export default function CarrinhoPage() {
             <div className="space-y-4 mb-6">
               {items.map((item) => (
                 <div
-                  key={item.id}
+                  key={item.variantId}
                   className="bg-white rounded-lg p-4 flex gap-4"
                 >
                   {/* Imagem */}
                   <div className="relative w-24 h-24 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                    {item.product?.image_url ? (
+                    {item.image ? (
                       <Image
-                        src={item.product.image_url}
-                        alt={item.product.name}
+                        src={item.image}
+                        alt={item.name}
                         fill
                         className="object-cover"
                       />
@@ -158,10 +155,10 @@ export default function CarrinhoPage() {
                   {/* Detalhes */}
                   <div className="flex-1">
                     <h3 className="text-base font-light text-gray-900 mb-2">
-                      {item.product?.name}
+                      {item.name}
                     </h3>
                     <p className="text-lg font-light text-black mb-4">
-                      {formatCurrency(item.product?.price || 0)}
+                      {formatCurrency(item.price)}
                     </p>
 
                     {/* Controles */}
@@ -170,7 +167,7 @@ export default function CarrinhoPage() {
                         <button
                           onClick={() =>
                             updateQuantity(
-                              item.id,
+                              item.variantId,
                               Math.max(1, item.quantity - 1),
                             )
                           }
@@ -183,7 +180,7 @@ export default function CarrinhoPage() {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(item.variantId, item.quantity + 1)
                           }
                           className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 transition-colors"
                         >
@@ -192,7 +189,7 @@ export default function CarrinhoPage() {
                       </div>
 
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.variantId)}
                         className="text-red-500 hover:text-red-700 transition-colors p-2"
                       >
                         <svg
@@ -218,7 +215,7 @@ export default function CarrinhoPage() {
             {/* Limpar Carrinho */}
             {items.length > 0 && (
               <button
-                onClick={clearAllItems}
+                onClick={clearCart}
                 className="text-red-500 text-sm font-light hover:text-red-700 transition-colors mb-6"
               >
                 Limpar Carrinho
@@ -230,15 +227,13 @@ export default function CarrinhoPage() {
               <div className="flex justify-between items-center text-lg">
                 <span className="font-light text-gray-700">Total</span>
                 <span className="font-light text-black text-xl">
-                  {formatCurrency(total)}
+                  {totalFormatted}
                 </span>
               </div>
-              <button
-                onClick={handleCheckout}
-                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-colors"
-              >
-                Finalizar Compra
-              </button>
+              <CheckoutButton
+                items={items}
+                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-colors disabled:bg-gray-300"
+              />
               <p className="text-xs text-gray-500 font-light text-center">
                 Frete e impostos calculados no checkout
               </p>

@@ -64,6 +64,7 @@ function mapProduct(product: NuvemshopProduct): Product {
     description: product.description.pt,
     price: Number(firstVariant?.price || 0),
     stock: firstVariant?.stock ?? 0,
+    variant_id: firstVariant?.id,
     category_id: firstCategory ? String(firstCategory.id) : undefined,
     image_url: getMainImage(product),
     slug: product.handle.pt,

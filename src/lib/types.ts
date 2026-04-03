@@ -27,6 +27,7 @@ export interface Product {
   description?: string;
   price: number;
   stock: number;
+  variant_id?: number;
   category_id?: string;
   image_url?: string;
   slug: string;

@@ -113,7 +113,7 @@ export default function ProdutosPage() {
 
   const handleAddToCart = async (product: Product) => {
     try {
-      await addItem(product.id, 1);
+      addItem(product, product.variant_id ?? Number(product.id));
     } catch (error) {
       console.error("Erro ao adicionar ao carrinho:", error);
     }

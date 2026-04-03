@@ -1,23 +1,21 @@
 "use client";
 
 import { useEffect } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
-import { useRouter } from "next/navigation";
+import CheckoutButton from "@/components/CheckoutButton";
 
 export default function CartSidebar() {
   const {
     items,
     isOpen,
     closeCart,
-    total,
+    totalFormatted,
     itemCount,
     updateQuantity,
     removeItem,
     isLoading,
   } = useCart();
-  const router = useRouter();
 
   // Fechar ao pressionar ESC
   useEffect(() => {
@@ -34,16 +32,11 @@ export default function CartSidebar() {
     };
   }, [isOpen, closeCart]);
 
-  const handleCheckout = () => {
-    closeCart();
-    router.push("/checkout");
-  };
-
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (valueInCents: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
       currency: "BRL",
-    }).format(value);
+    }).format(valueInCents / 100);
   };
 
   return (
@@ -138,7 +131,7 @@ export default function CartSidebar() {
             <div className="space-y-4">
               {items.map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.variantId}
                   className={`flex gap-4 p-4 bg-gray-50 rounded-lg transition-all duration-500 hover:shadow-md hover:bg-gray-100 ${
                     isOpen
                       ? "opacity-100 translate-x-0"
@@ -150,10 +143,10 @@ export default function CartSidebar() {
                 >
                   {/* Imagem do Produto */}
                   <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden shrink-0">
-                    {item.product?.image_url ? (
+                    {item.image ? (
                       <Image
-                        src={item.product.image_url}
-                        alt={item.product.name}
+                        src={item.image}
+                        alt={item.name}
                         fill
                         className="object-cover"
                       />
@@ -179,10 +172,10 @@ export default function CartSidebar() {
                   {/* Detalhes */}
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-light text-gray-900 mb-1 truncate">
-                      {item.product?.name}
+                      {item.name}
                     </h4>
                     <p className="text-sm font-light text-black mb-2">
-                      {formatCurrency(item.product?.price || 0)}
+                      {formatCurrency(item.price)}
                     </p>
 
                     {/* Controles de Quantidade */}
@@ -190,7 +183,7 @@ export default function CartSidebar() {
                       <button
                         onClick={() =>
                           updateQuantity(
-                            item.id,
+                            item.variantId,
                             Math.max(1, item.quantity - 1),
                           )
                         }
@@ -203,14 +196,14 @@ export default function CartSidebar() {
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantity(item.variantId, item.quantity + 1)
                         }
                         className="w-7 h-7 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 transition-all duration-200 hover:scale-110 active:scale-95"
                       >
                         +
                       </button>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.variantId)}
                         className="ml-auto text-red-500 hover:text-red-700 transition-all duration-200 hover:scale-110 active:scale-95"
                       >
                         <svg
@@ -246,19 +239,15 @@ export default function CartSidebar() {
             {/* Subtotal */}
             <div className="flex justify-between items-center text-lg">
               <span className="font-light text-gray-700">Subtotal</span>
-              <span className="font-light text-black">
-                {formatCurrency(total)}
-              </span>
+              <span className="font-light text-black">{totalFormatted}</span>
             </div>
 
             {/* Botões */}
             <div className="space-y-3">
-              <button
-                onClick={handleCheckout}
-                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
-              >
-                Finalizar Compra
-              </button>
+              <CheckoutButton
+                items={items}
+                className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 disabled:bg-gray-300 disabled:hover:scale-100"
+              />
               <button
                 onClick={closeCart}
                 className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-light hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 hover:scale-105 active:scale-95"

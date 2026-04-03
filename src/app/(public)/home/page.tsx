@@ -297,7 +297,9 @@ export default function HomePage() {
                     </p>
                   </Link>
                   <button
-                    onClick={() => addItem(product)}
+                    onClick={() =>
+                      addItem(product, product.variant_id ?? Number(product.id))
+                    }
                     className="w-full py-3 bg-black text-white text-xs font-medium tracking-widest uppercase hover:bg-gray-800 transition-colors"
                   >
                     Adicionar
