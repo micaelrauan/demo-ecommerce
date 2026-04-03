@@ -52,7 +52,9 @@ export default function ProdutoDetalhePage() {
         }
 
         const message =
-          err instanceof Error ? err.message : "Nao foi possivel carregar o produto.";
+          err instanceof Error
+            ? err.message
+            : "Nao foi possivel carregar o produto.";
         setError(message);
       } finally {
         if (mounted) {
@@ -106,8 +108,12 @@ export default function ProdutoDetalhePage() {
     return (
       <div className="min-h-screen bg-white px-4 py-16">
         <div className="max-w-3xl mx-auto text-center border border-amber-100 rounded-3xl p-10 bg-linear-to-b from-amber-50/70 to-white">
-          <h1 className="text-3xl font-light text-black mb-3">Produto nao encontrado</h1>
-          <p className="text-gray-600 font-light mb-8">{error || "Este produto nao esta disponivel."}</p>
+          <h1 className="text-3xl font-light text-black mb-3">
+            Produto nao encontrado
+          </h1>
+          <p className="text-gray-600 font-light mb-8">
+            {error || "Este produto nao esta disponivel."}
+          </p>
           <Link
             href="/produtos"
             className="inline-flex items-center justify-center bg-black text-white px-8 py-3 rounded-xl hover:bg-gray-800 transition-colors"
@@ -123,7 +129,10 @@ export default function ProdutoDetalhePage() {
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
         <nav className="mb-8 flex items-center gap-2 text-sm">
-          <Link href="/" className="font-light text-gray-500 transition-colors hover:text-black">
+          <Link
+            href="/"
+            className="font-light text-gray-500 transition-colors hover:text-black"
+          >
             Inicio
           </Link>
           <span className="text-gray-400">/</span>
@@ -191,16 +200,28 @@ export default function ProdutoDetalhePage() {
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-widest text-zinc-500">Frete</p>
-                <p className="mt-1 text-sm font-medium text-zinc-800">Rapido para todo Brasil</p>
+                <p className="text-[11px] uppercase tracking-widest text-zinc-500">
+                  Frete
+                </p>
+                <p className="mt-1 text-sm font-medium text-zinc-800">
+                  Rapido para todo Brasil
+                </p>
               </div>
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-widest text-zinc-500">Troca</p>
-                <p className="mt-1 text-sm font-medium text-zinc-800">Facil em ate 7 dias</p>
+                <p className="text-[11px] uppercase tracking-widest text-zinc-500">
+                  Troca
+                </p>
+                <p className="mt-1 text-sm font-medium text-zinc-800">
+                  Facil em ate 7 dias
+                </p>
               </div>
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3">
-                <p className="text-[11px] uppercase tracking-widest text-zinc-500">Pagamento</p>
-                <p className="mt-1 text-sm font-medium text-zinc-800">Pix, cartao e boleto</p>
+                <p className="text-[11px] uppercase tracking-widest text-zinc-500">
+                  Pagamento
+                </p>
+                <p className="mt-1 text-sm font-medium text-zinc-800">
+                  Pix, cartao e boleto
+                </p>
               </div>
             </div>
           </div>
@@ -208,7 +229,9 @@ export default function ProdutoDetalhePage() {
           <div className="lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-[0_18px_50px_-30px_rgba(0,0,0,0.35)] sm:p-8">
               {product.category?.name && (
-                <p className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-500">{product.category.name}</p>
+                <p className="mb-3 text-xs uppercase tracking-[0.22em] text-zinc-500">
+                  {product.category.name}
+                </p>
               )}
 
               <h1 className="mb-4 text-3xl font-light tracking-tight text-black sm:text-4xl lg:text-5xl">
@@ -227,7 +250,9 @@ export default function ProdutoDetalhePage() {
                         : "bg-rose-100 text-rose-700"
                     }`}
                   >
-                    {product.stock > 0 ? `${product.stock} em estoque` : "Esgotado"}
+                    {product.stock > 0
+                      ? `${product.stock} em estoque`
+                      : "Esgotado"}
                   </span>
                 )}
               </div>
@@ -241,19 +266,27 @@ export default function ProdutoDetalhePage() {
               )}
 
               <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-zinc-700">Quantidade</label>
+                <label className="mb-2 block text-sm font-medium text-zinc-700">
+                  Quantidade
+                </label>
                 <div className="inline-flex items-center overflow-hidden rounded-xl border border-zinc-300 bg-white">
                   <button
-                    onClick={() => setSelectedQuantity((q) => Math.max(1, q - 1))}
+                    onClick={() =>
+                      setSelectedQuantity((q) => Math.max(1, q - 1))
+                    }
                     className="px-4 py-2 text-lg leading-none transition-colors hover:bg-zinc-50"
                     aria-label="Diminuir quantidade"
                     disabled={selectedQuantity <= 1}
                   >
                     -
                   </button>
-                  <span className="min-w-14 px-5 py-2 text-center text-sm font-medium">{selectedQuantity}</span>
+                  <span className="min-w-14 px-5 py-2 text-center text-sm font-medium">
+                    {selectedQuantity}
+                  </span>
                   <button
-                    onClick={() => setSelectedQuantity((q) => Math.min(maxQuantity, q + 1))}
+                    onClick={() =>
+                      setSelectedQuantity((q) => Math.min(maxQuantity, q + 1))
+                    }
                     className="px-4 py-2 text-lg leading-none transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:text-zinc-300"
                     aria-label="Aumentar quantidade"
                     disabled={selectedQuantity >= maxQuantity || !canAddToCart}
@@ -270,7 +303,9 @@ export default function ProdutoDetalhePage() {
                   className="group flex-1 rounded-xl bg-black px-6 py-4 text-sm font-medium uppercase tracking-wider text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
                 >
                   <span className="inline-flex items-center gap-2">
-                    {canAddToCart ? "Adicionar ao carrinho" : "Produto esgotado"}
+                    {canAddToCart
+                      ? "Adicionar ao carrinho"
+                      : "Produto esgotado"}
                   </span>
                 </button>
                 <Link
@@ -283,12 +318,18 @@ export default function ProdutoDetalhePage() {
 
               <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-500">Codigo do produto</p>
+                  <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+                    Codigo do produto
+                  </p>
                   <p className="mt-1 font-medium text-zinc-800">{product.id}</p>
                 </div>
                 <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-                  <p className="text-[11px] uppercase tracking-wider text-zinc-500">Slug</p>
-                  <p className="mt-1 truncate font-medium text-zinc-800">{product.slug}</p>
+                  <p className="text-[11px] uppercase tracking-wider text-zinc-500">
+                    Slug
+                  </p>
+                  <p className="mt-1 truncate font-medium text-zinc-800">
+                    {product.slug}
+                  </p>
                 </div>
               </div>
             </div>
