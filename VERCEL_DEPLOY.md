@@ -79,7 +79,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=[sua-chave-anonima]
 ## Próximos Passos
 
 1. Deploy no Vercel
-2. Testar todas as rotas: `/`, `/produtos`, `/admin`, `/login`
+2. Testar todas as rotas: `/`, `/produtos`, `/login`
 3. Testar funcionalidade de carrinho
 4. Verificar responsive design
 5. Testar em diferentes browsers

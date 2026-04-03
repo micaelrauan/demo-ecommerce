@@ -267,7 +267,7 @@ import type {
 
 ---
 
-## 🔐 Segurança
+## Segurança
 
 - ✅ Todas as funções respeitam RLS (Row Level Security)
 - ✅ Usuários só acessam seus próprios dados

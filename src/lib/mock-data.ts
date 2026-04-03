@@ -12,8 +12,8 @@ export const mockProfiles: Profile[] = [
     updated_at: now,
   },
   {
-    id: "admin-user",
-    name: "Admin Demo",
+    id: "cliente-2",
+    name: "Cliente Premium",
     phone: "(11) 99999-1111",
     cpf: "111.111.111-11",
     created_at: now,

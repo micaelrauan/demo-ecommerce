@@ -13,10 +13,7 @@ export default function MainWrapper({
   const authRoutes = ["/login", "/cadastro", "/conta"];
   const isAuthPage = authRoutes.includes(pathname);
 
-  // Páginas admin têm seu próprio layout
-  const isAdminPage = pathname.startsWith("/admin");
-
-  if (isAuthPage || isAdminPage) {
+  if (isAuthPage) {
     return <>{children}</>;
   }
 

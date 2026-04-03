@@ -3,28 +3,19 @@
 import Link from "next/link";
 
 export default function AcessoNegado() {
-  const user = { email: "cliente@demo.com" };
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         <div className="bg-white rounded-lg border border-gray-200 p-8">
           <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">🔒</span>
+            <span className="text-4xl">⚠️</span>
           </div>
 
           <h1 className="text-3xl font-light text-black mb-4">Acesso Negado</h1>
 
           <p className="text-gray-600 mb-6">
-            Você não tem permissão para acessar o painel administrativo.
+            Você não tem permissão para acessar esta página.
           </p>
-
-          {user && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-600 mb-1">Logado como:</p>
-              <p className="text-sm font-medium text-black">{user.email}</p>
-            </div>
-          )}
 
           <div className="space-y-3">
             <Link
@@ -44,12 +35,10 @@ export default function AcessoNegado() {
 
           <div className="mt-8 pt-6 border-t border-gray-200">
             <p className="text-xs text-gray-500">
-              Apenas usuários com permissão de administrador podem acessar esta
-              área.
+              Verifique se sua sessão está ativa e tente novamente.
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              Entre em contato com o administrador se você precisa de
-              permissões.
+              Se o problema persistir, entre em contato com o suporte.
             </p>
           </div>
         </div>

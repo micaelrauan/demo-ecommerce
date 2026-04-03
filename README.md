@@ -161,7 +161,7 @@ Caso opte pelo backend customizado:
 - ✅ Validação de dados com class-validator
 - ✅ Guards e decorators customizados
 
-## 🔐 Variáveis de Ambiente
+## Variáveis de Ambiente
 
 ### Com Supabase (Recomendado)
 
