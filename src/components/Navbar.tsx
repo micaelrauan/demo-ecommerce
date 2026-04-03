@@ -2,34 +2,29 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
+import UserMenu from "@/components/header/UserMenu";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showUserMenuMini, setShowUserMenuMini] = useState(false);
   const [currentPromo, setCurrentPromo] = useState(0);
-  const { user, logout, isAdmin } = useAuth();
   const { toggleCart, itemCount } = useCart();
-  const router = useRouter();
 
   const promos = [
-    "Frete grátis para compras acima de R$ 299",
-    "Até 10x sem juros no cartão de crédito",
-    "Descontos de até 50% em produtos selecionados",
-    "Entrega expressa para sua região",
+    "Frete gratis para compras acima de R$ 299",
+    "Ate 10x sem juros no cartao de credito",
+    "Descontos de ate 50% em produtos selecionados",
+    "Entrega expressa para sua regiao",
   ];
 
-  // Rotação automática das promoções
+  // Rotacao automatica das promocoes
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentPromo((prev) => (prev + 1) % promos.length);
-    }, 8000); // 5 segundos para transição mais suave
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
 
@@ -40,10 +35,8 @@ export default function Navbar() {
       const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Rolando para baixo e passou de 100px
         setIsVisible(false);
       } else if (currentScrollY < lastScrollY) {
-        // Rolando para cima
         setIsVisible(true);
       }
 
@@ -65,26 +58,9 @@ export default function Navbar() {
     };
   }, [lastScrollY]);
 
-  // Fechar dropdown do usuário quando clicar fora
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (
-        (showUserMenu || showUserMenuMini) &&
-        !target.closest(".user-menu-container")
-      ) {
-        setShowUserMenu(false);
-        setShowUserMenuMini(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showUserMenu, showUserMenuMini]);
-
   return (
     <>
-      {/* Top Bar - Carousel de Promoções */}
+      {/* Top Bar - Carousel de Promocoes */}
       <div
         className={`bg-[#670006] text-white py-2 fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
@@ -92,9 +68,7 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* Carrossel à Esquerda */}
             <div className="flex items-center gap-3 flex-1">
-              {/* Texto com Transição */}
               <div className="relative h-6 overflow-hidden flex-1 max-w-md">
                 {promos.map((promo, index) => (
                   <div
@@ -112,7 +86,6 @@ export default function Navbar() {
                 ))}
               </div>
 
-              {/* Indicadores Discretos */}
               <div className="flex items-center gap-1.5">
                 {promos.map((_, index) => (
                   <button
@@ -123,13 +96,12 @@ export default function Navbar() {
                         ? "w-4 bg-white/80"
                         : "w-1 bg-white/30 hover:bg-white/50"
                     }`}
-                    aria-label={`Ir para promoção ${index + 1}`}
+                    aria-label={`Ir para promocao ${index + 1}`}
                   />
                 ))}
               </div>
             </div>
 
-            {/* Links à Direita */}
             <div className="flex items-center gap-6 text-sm font-light">
               <Link
                 href="/contato"
@@ -266,119 +238,7 @@ export default function Navbar() {
                   </svg>
                 </Link>
 
-                {/* User Account */}
-                <div className="relative user-menu-container">
-                  {user ? (
-                    <>
-                      <button
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                        className="relative text-gray-600 hover:text-black transition-colors flex items-center gap-2"
-                      >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {showUserMenu && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                          <div className="px-4 py-3 border-b border-gray-100">
-                            <p className="text-sm font-light text-gray-900">
-                              {user.name}
-                            </p>
-                            <p className="text-xs font-light text-gray-500 truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                          {isAdmin && (
-                            <Link
-                              href="/admin"
-                              className="block px-4 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors border-b border-gray-100"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              🔐 Painel Admin
-                            </Link>
-                          )}
-                          <Link
-                            href="/conta"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            Minha Conta
-                          </Link>
-                          <Link
-                            href="/conta?tab=pedidos"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            Meus Pedidos
-                          </Link>
-                          <Link
-                            href="/conta?tab=favoritos"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            Favoritos
-                          </Link>
-                          <div className="border-t border-gray-100 mt-2 pt-2">
-                            <button
-                              onClick={async () => {
-                                await logout();
-                                setShowUserMenu(false);
-                                router.push("/");
-                              }}
-                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                            >
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                />
-                              </svg>
-                              Sair da Conta
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="relative text-gray-600 hover:text-black transition-colors"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </Link>
-                  )}
-                </div>
+                <UserMenu />
 
                 {/* Shopping Cart */}
                 <button
@@ -553,7 +413,7 @@ export default function Navbar() {
                   <span className="text-xs mt-1 font-light">Favoritos</span>
                 </Link>
                 <Link
-                  href="/conta"
+                  href="/minha-conta"
                   className="flex flex-col items-center text-gray-600"
                 >
                   <svg
@@ -714,118 +574,7 @@ export default function Navbar() {
                   </svg>
                 </Link>
 
-                {/* User Account Mini */}
-                <div className="relative user-menu-container">
-                  {user ? (
-                    <>
-                      <button
-                        onClick={() => setShowUserMenuMini(!showUserMenuMini)}
-                        className="text-gray-600 hover:text-black transition-colors"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </button>
-
-                      {showUserMenuMini && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                          <div className="px-4 py-3 border-b border-gray-100">
-                            <p className="text-sm font-light text-gray-900">
-                              {user.name}
-                            </p>
-                            <p className="text-xs font-light text-gray-500 truncate">
-                              {user.email}
-                            </p>
-                          </div>
-                          {isAdmin && (
-                            <Link
-                              href="/admin"
-                              className="block px-4 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors border-b border-gray-100"
-                              onClick={() => setShowUserMenuMini(false)}
-                            >
-                              🔐 Painel Admin
-                            </Link>
-                          )}
-                          <Link
-                            href="/conta"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenuMini(false)}
-                          >
-                            Minha Conta
-                          </Link>
-                          <Link
-                            href="/conta?tab=pedidos"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenuMini(false)}
-                          >
-                            Meus Pedidos
-                          </Link>
-                          <Link
-                            href="/conta?tab=favoritos"
-                            className="block px-4 py-2.5 text-sm font-light text-gray-700 hover:bg-gray-50 transition-colors"
-                            onClick={() => setShowUserMenuMini(false)}
-                          >
-                            Favoritos
-                          </Link>
-                          <div className="border-t border-gray-100 mt-2 pt-2">
-                            <button
-                              onClick={async () => {
-                                await logout();
-                                setShowUserMenuMini(false);
-                                router.push("/");
-                              }}
-                              className="w-full text-left px-4 py-2.5 text-sm font-light text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                            >
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                />
-                              </svg>
-                              Sair da Conta
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="text-gray-600 hover:text-black transition-colors"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </Link>
-                  )}
-                </div>
+                <UserMenu compact />
 
                 <button
                   onClick={toggleCart}

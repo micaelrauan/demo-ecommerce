@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { signIn, useSession } from "next-auth/react";
 
 export default function CadastroPage() {
   const [name, setName] = useState("");
@@ -11,15 +12,21 @@ export default function CadastroPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { status } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/");
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // Validações
-    if (name.trim().length < 3) {
-      setError("Nome deve ter pelo menos 3 caracteres");
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+      setError("Todos os campos são obrigatórios");
       return;
     }
 
@@ -36,17 +43,28 @@ export default function CadastroPage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      router.push("/conta");
-    } catch (err: any) {
-      console.error("Register error:", err);
-      if (err.message?.includes("already registered")) {
-        setError("Este email já está cadastrado");
-      } else if (err.message?.includes("invalid email")) {
-        setError("Email inválido");
-      } else {
-        setError("Erro ao criar conta. Tente novamente.");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+          detail?: string;
+        };
+        setError(data.error || data.detail || "Erro ao criar conta. Tente novamente.");
+        return;
       }
+
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl: "/",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +72,7 @@ export default function CadastroPage() {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-20">
-      <div className="max-w-md w-full">
-        {/* Header */}
+      <div className="max-w-105 w-full border border-gray-200 rounded-2xl p-8 bg-white shadow-sm">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-light tracking-wider text-black mb-2">
             CRIAR CONTA
@@ -65,7 +82,28 @@ export default function CadastroPage() {
           </p>
         </div>
 
-        {/* Form */}
+        <button
+          type="button"
+          onClick={() => signIn("google", { callbackUrl: "/" })}
+          className="w-full bg-[#4285F4] text-white py-3 rounded-lg font-light transition-colors hover:brightness-95 flex items-center justify-center gap-3"
+        >
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          Registrar com Google
+        </button>
+        <p className="text-xs text-gray-500 text-center mt-2 font-light">
+          Sua conta será criada automaticamente
+        </p>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px bg-gray-200 flex-1" />
+          <span className="text-sm text-gray-500 font-light">ou</span>
+          <div className="h-px bg-gray-200 flex-1" />
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm font-light">
@@ -88,7 +126,7 @@ export default function CadastroPage() {
               onChange={(e) => setName(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black text-gray-900 font-light transition-all"
-              placeholder="Seu nome"
+              placeholder="Seu nome completo"
             />
           </div>
 
@@ -107,7 +145,7 @@ export default function CadastroPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black text-gray-900 font-light transition-all"
-              placeholder="seu@email.com"
+              placeholder="Seu email"
             />
           </div>
 
@@ -125,8 +163,9 @@ export default function CadastroPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black text-gray-900 font-light transition-all"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Crie uma senha"
             />
           </div>
 
@@ -145,44 +184,27 @@ export default function CadastroPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black text-gray-900 font-light transition-all"
-              placeholder="Digite a senha novamente"
+              placeholder="Repita a senha"
             />
           </div>
 
-          {/* Terms */}
-          <div className="flex items-start">
-            <input type="checkbox" id="terms" required className="mt-1 mr-2" />
-            <label htmlFor="terms" className="text-sm font-light text-gray-600">
-              Aceito os{" "}
-              <Link href="/termos" className="text-black hover:underline">
-                termos de uso
-              </Link>{" "}
-              e a{" "}
-              <Link href="/privacidade" className="text-black hover:underline">
-                política de privacidade
-              </Link>
-            </label>
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-black text-white py-3 rounded-lg font-light hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Criando conta..." : "Criar conta"}
+            {isLoading ? "Criando conta..." : "Criar Conta"}
           </button>
         </form>
 
-        {/* Login Link */}
         <div className="mt-8 text-center">
           <p className="text-gray-600 font-light">
-            Já tem uma conta?{" "}
+            Já tem conta?{" "}
             <Link
               href="/login"
               className="text-black hover:underline font-normal"
             >
-              Entre aqui
+              Entrar
             </Link>
           </p>
         </div>

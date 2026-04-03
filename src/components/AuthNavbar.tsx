@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "next-auth/react";
 
 export default function AuthNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user } = useAuth();
+  const { status } = useSession();
+  const isAuthenticated = status === "authenticated";
 
   return (
     <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
@@ -21,7 +22,7 @@ export default function AuthNavbar() {
 
           {/* Right Side - Desktop */}
           <div className="hidden md:flex items-center gap-4">
-            {!user && (
+            {!isAuthenticated && (
               <>
                 <Link
                   href="/login"
@@ -74,7 +75,7 @@ export default function AuthNavbar() {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-100 py-4">
             <div className="flex flex-col space-y-4">
-              {!user && (
+              {!isAuthenticated && (
                 <div className="flex flex-col space-y-3">
                   <Link
                     href="/login"
