@@ -31,6 +31,19 @@ function getApiUrl(path: string, params?: Record<string, string>): string {
   return url.toString();
 }
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  return html
+    .replace(/<[^>]*>/g, "") // Remove tags HTML
+    .replace(/&nbsp;/g, " ") // Substitui entidades
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ") // Remove espaços múltiplos
+    .trim();
+}
+
 function mapCategory(category: NuvemshopCategory): Category {
   return {
     id: String(category.id),
@@ -61,8 +74,11 @@ function mapProduct(product: NuvemshopProduct): Product {
   return {
     id: String(product.id),
     name: product.name.pt,
-    description: product.description.pt,
+    description: stripHtml(product.description.pt),
     price: Number(firstVariant?.price || 0),
+    compare_at_price: firstVariant?.compare_at_price
+      ? Number(firstVariant.compare_at_price)
+      : undefined,
     stock: firstVariant?.stock ?? 0,
     variant_id: firstVariant?.id,
     category_id: firstCategory ? String(firstCategory.id) : undefined,

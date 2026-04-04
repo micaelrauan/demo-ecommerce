@@ -32,6 +32,7 @@ export interface Product {
   image_url?: string;
   slug: string;
   is_active: boolean;
+  compare_at_price?: number;
   created_at: string;
   updated_at: string;
   category?: Category;
