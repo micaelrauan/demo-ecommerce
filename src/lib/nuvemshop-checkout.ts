@@ -93,13 +93,9 @@ export async function createDraftOrder(
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({} as Record<string, unknown>));
+    const error = await res.json().catch(() => ({}) as Record<string, unknown>);
     const payload = JSON.stringify(error);
-    console.error(
-      "Nuvemshop createDraftOrder failed:",
-      res.status,
-      payload,
-    );
+    console.error("Nuvemshop createDraftOrder failed:", res.status, payload);
 
     if (res.status === 401) {
       throw new CheckoutIntegrationError(

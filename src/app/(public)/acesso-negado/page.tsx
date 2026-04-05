@@ -20,7 +20,7 @@ export default function AcessoNegado() {
 
           <div className="space-y-3">
             <Link
-              href="/home"
+              href="/"
               className="block w-full px-6 py-3 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
             >
               Voltar para Loja

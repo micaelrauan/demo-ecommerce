@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+import { useAuth } from "@clerk/nextjs";
+
+const SignInButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignInButton })),
+  { ssr: false },
+);
+
+const SignUpButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignUpButton })),
+  { ssr: false },
+);
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
+  { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" /> },
+);
 
 export default function AuthNavbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
   const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   return (
     <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">

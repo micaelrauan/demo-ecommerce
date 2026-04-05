@@ -51,6 +51,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className="light" style={{ colorScheme: "light" }}>
+      <head>
+        <link rel="preconnect" href="https://accounts.dev" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://clerk.accounts.dev"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://api.nuvemshop.com.br"
+          crossOrigin=""
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased bg-white text-black [font-family:var(--font-poppins)] font-light`}
         style={{ background: "#ffffff", color: "#000000" }}

@@ -1,6 +1,17 @@
 "use client";
 
-import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import dynamic from "next/dynamic";
+import { UserButton, useAuth } from "@clerk/nextjs";
+
+const SignInButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignInButton })),
+  { ssr: false },
+);
+
+const SignUpButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignUpButton })),
+  { ssr: false },
+);
 
 interface UserMenuProps {
   compact?: boolean;

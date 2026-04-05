@@ -51,7 +51,9 @@ export default function CheckoutButton({
         .catch(() => ({ error: "Falha inesperada ao iniciar checkout." }));
 
       if (!res.ok) {
-        throw new Error(data.detail || data.error || "Erro ao iniciar checkout");
+        throw new Error(
+          data.detail || data.error || "Erro ao iniciar checkout",
+        );
       }
 
       if (!data.checkoutUrl) {

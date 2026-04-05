@@ -31,7 +31,7 @@ export default function RedefinirSenhaPage() {
       await new Promise((resolve) => setTimeout(resolve, 600));
       setSuccess(true);
       setTimeout(() => {
-        router.push("/home");
+        router.push("/");
       }, 2000);
     } catch (err: any) {
       console.error("Password update error:", err);

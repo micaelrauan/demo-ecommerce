@@ -2,9 +2,30 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
+import { useAuth } from "@clerk/nextjs";
 import { useCart } from "@/contexts/CartContext";
-import UserMenu from "@/components/header/UserMenu";
+
+const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
+  ssr: false,
+  loading: () => <div className="w-44 h-11" />,
+});
+
+const SignInButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignInButton })),
+  { ssr: false },
+);
+
+const SignUpButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignUpButton })),
+  { ssr: false },
+);
+
+const UserButton = dynamic(
+  () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
+  { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" /> },
+);
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +33,7 @@ export default function Navbar() {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
+  const pathname = usePathname();
   const { isSignedIn } = useAuth();
   const { itemCount } = useCart();
 
@@ -59,6 +81,10 @@ export default function Navbar() {
       window.removeEventListener("scroll", onScroll);
     };
   }, [lastScrollY]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   return (
     <>
