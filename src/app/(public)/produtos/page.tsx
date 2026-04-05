@@ -111,6 +111,24 @@ export default function ProdutosPage() {
     }).format(value);
   };
 
+  const formatProductMeta = (product: Product) => {
+    const pieces: string[] = [];
+
+    if (typeof product.weight === "number") {
+      pieces.push(`Peso: ${product.weight}g`);
+    }
+
+    if (
+      typeof product.width === "number" &&
+      typeof product.height === "number" &&
+      typeof product.depth === "number"
+    ) {
+      pieces.push(`Dimensões: ${product.width}x${product.height}x${product.depth} cm`);
+    }
+
+    return pieces.join(" • ");
+  };
+
   const handleAddToCart = async (product: Product) => {
     try {
       addItem(product, product.variant_id ?? Number(product.id));
@@ -471,7 +489,7 @@ export default function ProdutosPage() {
                     /* Grid View */
                     <div
                       key={product.id}
-                      className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-gray-300 transition-all duration-500"
+                      className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:border-gray-300 transition-all duration-500 flex flex-col h-full"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       <Link href={`/produtos/${product.id}`} className="block">
@@ -518,37 +536,53 @@ export default function ProdutosPage() {
                         </div>
                       </Link>
 
-                      <div className="p-5">
+                      <div className="p-5 flex flex-col flex-1">
+                        <div className="flex-1">
                         {product.category?.name && (
                           <span className="inline-block text-xs text-gray-500 font-light uppercase tracking-wider mb-2">
                             {product.category.name}
                           </span>
                         )}
                         <Link href={`/produtos/${product.id}`}>
-                          <h3 className="text-sm sm:text-lg font-light text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-10 sm:min-h-14">
+                          <h3 className="text-sm sm:text-lg font-bold text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-10 sm:min-h-14">
                             {product.name}
                           </h3>
                         </Link>
-                        {product.description && (
-                          <p className="hidden sm:block text-sm text-gray-600 font-light mb-4 line-clamp-2">
-                            {product.description}
+                        {formatProductMeta(product) && (
+                          <p className="text-[11px] sm:text-xs text-gray-500 font-light mb-4 line-clamp-1">
+                            {formatProductMeta(product)}
                           </p>
                         )}
+                        </div>
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <span className="text-base sm:text-2xl font-light text-black">
-                            {formatCurrency(product.price)}
-                          </span>
+                          <div>
+                            {product.compare_at_price &&
+                            product.compare_at_price > product.price ? (
+                              <>
+                                <p className="text-xs sm:text-sm text-gray-500 line-through">
+                                  {formatCurrency(product.compare_at_price)}
+                                </p>
+                                <span className="text-lg sm:text-2xl font-bold text-black leading-none">
+                                  {formatCurrency(product.price)}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-lg sm:text-2xl font-bold text-black leading-none">
+                                {formatCurrency(product.price)}
+                              </span>
+                            )}
+                          </div>
                           <button
                             onClick={() => handleAddToCart(product)}
                             disabled={product.stock === 0}
-                            className="group/btn bg-black text-white px-3 sm:pl-4 sm:pr-3 py-2 rounded-lg text-xs sm:text-sm font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-1 sm:gap-2"
+                            className="group/btn bg-black text-white px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base font-medium hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
                           >
                             <span>
                               {product.stock === 0 ? "Esgotado" : "Adicionar"}
                             </span>
                             {product.stock !== 0 && (
                               <svg
-                                className="w-4 h-4 group-hover/btn:translate-x-0.5 transition-transform"
+                                className="w-4 h-4 sm:w-5 sm:h-5 group-hover/btn:-translate-y-px transition-transform"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -557,7 +591,7 @@ export default function ProdutosPage() {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={2}
-                                  d="M12 4v16m8-8H4"
+                                  d="M6 8h12l-1 12H7L6 8zM9 8V6a3 3 0 016 0v2"
                                 />
                               </svg>
                             )}
@@ -625,24 +659,38 @@ export default function ProdutosPage() {
                             </span>
                           )}
                           <Link href={`/produtos/${product.id}`}>
-                            <h3 className="text-xl font-light text-black mb-2 group-hover:text-gray-600 transition-colors">
+                            <h3 className="text-xl font-bold text-black mb-2 group-hover:text-gray-600 transition-colors">
                               {product.name}
                             </h3>
                           </Link>
-                          {product.description && (
-                            <p className="text-sm text-gray-600 font-light mb-4 line-clamp-3">
-                              {product.description}
+                          {formatProductMeta(product) && (
+                            <p className="text-xs text-gray-500 font-light mb-4 line-clamp-1">
+                              {formatProductMeta(product)}
                             </p>
                           )}
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                          <span className="text-3xl font-light text-black">
-                            {formatCurrency(product.price)}
-                          </span>
+                          <div>
+                            {product.compare_at_price &&
+                            product.compare_at_price > product.price ? (
+                              <>
+                                <p className="text-sm text-gray-500 line-through">
+                                  {formatCurrency(product.compare_at_price)}
+                                </p>
+                                <span className="text-3xl font-bold text-black leading-none">
+                                  {formatCurrency(product.price)}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="text-3xl font-bold text-black leading-none">
+                                {formatCurrency(product.price)}
+                              </span>
+                            )}
+                          </div>
                           <button
                             onClick={() => handleAddToCart(product)}
                             disabled={product.stock === 0}
-                            className="group/btn bg-black text-white px-6 py-3 rounded-lg font-light hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
+                            className="group/btn bg-black text-white px-7 py-3.5 rounded-lg text-base font-medium hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2"
                           >
                             <span>
                               {product.stock === 0
@@ -651,7 +699,7 @@ export default function ProdutosPage() {
                             </span>
                             {product.stock !== 0 && (
                               <svg
-                                className="w-5 h-5 group-hover/btn:translate-x-0.5 transition-transform"
+                                className="w-5 h-5 group-hover/btn:-translate-y-px transition-transform"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -660,7 +708,7 @@ export default function ProdutosPage() {
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={2}
-                                  d="M12 4v16m8-8H4"
+                                  d="M6 8h12l-1 12H7L6 8zM9 8V6a3 3 0 016 0v2"
                                 />
                               </svg>
                             )}

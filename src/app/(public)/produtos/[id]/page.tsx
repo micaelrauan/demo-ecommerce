@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { getProductById } from "@/lib/api";
+import { getProductById, getProducts } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
 function formatCurrency(value: number): string {
@@ -73,12 +73,13 @@ function QuantitySelector({ value, onChange, min = 1, max = 99, disabled }: Quan
 
 export default function ProdutoDetalhePage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const productId = params?.id;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -130,6 +131,46 @@ export default function ProdutoDetalhePage() {
     };
   }, [productId]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadRecommendations() {
+      if (!product) {
+        return;
+      }
+
+      try {
+        const items = await getProducts();
+
+        if (!mounted) {
+          return;
+        }
+
+        const sameCategory = items.filter(
+          (item) =>
+            item.id !== product.id &&
+            item.category_id &&
+            product.category_id &&
+            item.category_id === product.category_id,
+        );
+
+        const fallback = items.filter((item) => item.id !== product.id);
+
+        setRecommendedProducts((sameCategory.length ? sameCategory : fallback).slice(0, 4));
+      } catch {
+        if (mounted) {
+          setRecommendedProducts([]);
+        }
+      }
+    }
+
+    loadRecommendations();
+
+    return () => {
+      mounted = false;
+    };
+  }, [product]);
+
   const gallery = useMemo(() => {
     if (!product?.images || product.images.length === 0) {
       if (product?.image_url) {
@@ -141,7 +182,6 @@ export default function ProdutoDetalhePage() {
   }, [product]);
 
   const canAddToCart = Boolean(product && (product.stock ?? 0) > 0);
-  const maxQuantity = Math.max(1, product?.stock ?? 1);
 
   // Usando os preços diretos do Nuvemshop
   const discountPrice = product?.price ?? 0;
@@ -158,12 +198,22 @@ export default function ProdutoDetalhePage() {
 
     const variantId = product.variant_id ?? Number(product.id);
 
-    for (let i = 0; i < selectedQuantity; i += 1) {
-      addItem(product, variantId);
-    }
+    addItem(product, variantId);
 
     setShowFeedback(true);
     setTimeout(() => setShowFeedback(false), 2000);
+  };
+
+  const handleBuyNow = () => {
+    if (!product || !canAddToCart) {
+      return;
+    }
+
+    const variantId = product.variant_id ?? Number(product.id);
+
+    addItem(product, variantId);
+
+    router.push("/carrinho");
   };
 
   const handleFavorite = () => {
@@ -176,6 +226,22 @@ export default function ProdutoDetalhePage() {
       console.log("CEP verificado:", cepInput);
     }
   };
+
+  const productSpecs: string[] = [];
+
+  if (typeof product?.weight === "number") {
+    productSpecs.push(`Peso: ${product.weight}g`);
+  }
+
+  if (
+    typeof product?.width === "number" &&
+    typeof product?.height === "number" &&
+    typeof product?.depth === "number"
+  ) {
+    productSpecs.push(
+      `Dimensões: ${product.width}x${product.height}x${product.depth} cm`,
+    );
+  }
 
   if (loading) {
     return (
@@ -233,7 +299,7 @@ export default function ProdutoDetalhePage() {
           <div className="flex flex-col gap-6">
             {/* Imagem Principal */}
             <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-lg">
-              <div className="relative aspect-square w-full bg-gradient-to-br from-gray-50 to-white">
+              <div className="relative aspect-square w-full bg-linear-to-br from-gray-50 to-white">
                 {gallery.length > 0 ? (
                   <Image
                     src={gallery[selectedImageIndex].src}
@@ -275,7 +341,7 @@ export default function ProdutoDetalhePage() {
                   <button
                     key={`${image.src}-${index}`}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative flex-shrink-0 w-24 h-24 rounded-lg border-2 overflow-hidden transition-colors ${
+                    className={`relative shrink-0 w-24 h-24 rounded-lg border-2 overflow-hidden transition-colors ${
                       selectedImageIndex === index
                         ? "border-amber-500"
                         : "border-gray-200 hover:border-gray-400"
@@ -291,6 +357,15 @@ export default function ProdutoDetalhePage() {
                     />
                   </button>
                 ))}
+              </div>
+            )}
+
+            {/* Descrição Produto */}
+            {product.description && (
+              <div className="border-l-4 border-amber-400 pl-4 py-2">
+                <p className="hidden md:block text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
+                  {product.description}
+                </p>
               </div>
             )}
           </div>
@@ -319,6 +394,12 @@ export default function ProdutoDetalhePage() {
               {product.name}
             </h1>
 
+            {productSpecs.length > 0 && (
+              <p className="text-sm text-gray-600 font-light -mt-2">
+                {productSpecs.join(" • ")}
+              </p>
+            )}
+
             {/* Preço */}
             <div className="flex flex-col gap-3">
               <div className="flex items-baseline gap-3">
@@ -339,11 +420,11 @@ export default function ProdutoDetalhePage() {
             </div>
 
             {/* Badge CashBack */}
-            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-              <span className="text-emerald-700 font-medium text-sm">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+              <span className="text-black font-medium text-sm">
                 Ganhe {formatCurrency(discountPrice * 0.1)} em GIFTBACK
               </span>
-              <button className="text-emerald-600 hover:text-emerald-700">
+              <button className="text-gray-700 hover:text-black">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
@@ -353,9 +434,9 @@ export default function ProdutoDetalhePage() {
             {/* Status Estoque */}
             <div>
               {typeof product.stock === "number" && (
-                <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
+                <span className={`inline-block px-4 py-2 rounded-full text-xs font-medium ${
                   product.stock > 0
-                    ? "bg-emerald-100 text-emerald-700"
+                    ? "bg-gray-100 text-gray-800"
                     : "bg-red-100 text-red-700"
                 }`}>
                   {product.stock > 0 ? `${product.stock} em estoque` : "Esgotado"}
@@ -363,34 +444,33 @@ export default function ProdutoDetalhePage() {
               )}
             </div>
 
-            {/* Descrição Produto */}
+            {/* Ações de compra */}
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleAddToCart}
+                disabled={!canAddToCart}
+                className="w-full bg-white border border-gray-300 text-black py-3 rounded-xl font-semibold text-sm sm:text-base uppercase tracking-wider hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed transition-colors relative overflow-hidden"
+              >
+                {showFeedback ? "✓ Adicionado à Sacola!" : "Adicionar à Sacola"}
+              </button>
+
+              <button
+                onClick={handleBuyNow}
+                disabled={!canAddToCart}
+                className="w-full bg-black border border-black text-white py-3.5 rounded-xl font-bold text-sm sm:text-base uppercase tracking-wider hover:bg-gray-900 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+              >
+                Comprar agora
+              </button>
+            </div>
+
+            {/* Descrição no mobile após ações */}
             {product.description && (
-              <div className="border-l-4 border-amber-400 pl-4 py-2">
+              <div className="border-l-4 border-amber-400 pl-4 py-2 md:hidden">
                 <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">
                   {product.description}
                 </p>
               </div>
             )}
-
-            {/* Seletor de Quantidade */}
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-semibold text-gray-700">Quantidade</label>
-              <QuantitySelector
-                value={selectedQuantity}
-                onChange={setSelectedQuantity}
-                max={maxQuantity}
-                disabled={!canAddToCart}
-              />
-            </div>
-
-            {/* Botão Adicionar à Sacola */}
-            <button
-              onClick={handleAddToCart}
-              disabled={!canAddToCart}
-              className="w-full bg-black text-white py-4 rounded-xl font-bold text-lg uppercase tracking-wider hover:bg-gray-900 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors relative overflow-hidden"
-            >
-              {showFeedback ? "✓ Adicionado à Sacola!" : "Adicionar à Sacola"}
-            </button>
 
             {/* Frete e Prazo - Expansível */}
             <div className="border border-gray-200 rounded-xl overflow-hidden">
@@ -417,12 +497,12 @@ export default function ProdutoDetalhePage() {
                       placeholder="00000-000"
                       value={cepInput}
                       onChange={(e) => setCepInput(e.target.value.replace(/\D/g, "").slice(0, 8))}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                       aria-label="CEP"
                     />
                     <button
                       onClick={handleCepCheck}
-                      className="px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+                      className="px-6 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-900 transition-colors"
                     >
                       OK
                     </button>
@@ -436,6 +516,53 @@ export default function ProdutoDetalhePage() {
             </div>
           </div>
         </div>
+
+        {recommendedProducts.length > 0 && (
+          <section className="mt-14 border-t border-gray-200 pt-10">
+            <div className="flex items-end justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold text-black">
+                Recomendações para você
+              </h2>
+              <Link href="/produtos" className="text-sm text-gray-600 hover:text-black transition-colors">
+                Ver todos
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
+              {recommendedProducts.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/produtos/${item.id}`}
+                  className="group border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-md transition-all"
+                >
+                  <div className="relative aspect-square bg-gray-50">
+                    {item.image_url ? (
+                      <Image
+                        src={item.image_url}
+                        alt={item.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
+                        Sem imagem
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3 sm:p-4">
+                    <h3 className="text-xs sm:text-sm font-medium text-black line-clamp-2 min-h-8 sm:min-h-10">
+                      {item.name}
+                    </h3>
+                    <p className="mt-2 text-sm sm:text-base font-semibold text-black">
+                      {formatCurrency(item.price)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

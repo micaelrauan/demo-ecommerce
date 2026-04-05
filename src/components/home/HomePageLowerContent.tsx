@@ -56,7 +56,7 @@ export default function HomePageLowerContent() {
               {products.map((product, index) => (
                 <div
                   key={product.id}
-                  className="group bg-white transition-all duration-300"
+                  className="group bg-white transition-all duration-300 flex flex-col"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <Link href={`/produtos/${product.id}`} className="block">
@@ -75,6 +75,13 @@ export default function HomePageLowerContent() {
                           <span className="text-gray-400 text-5xl">📦</span>
                         </div>
                       )}
+
+                      {product.compare_at_price &&
+                        product.compare_at_price > product.price && (
+                          <span className="absolute left-2 top-2 inline-flex items-center rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">
+                            Oferta
+                          </span>
+                        )}
                     </div>
                     <h3
                       className="text-[0.9rem] font-light mb-3 text-black group-hover:text-gray-600 transition-colors"
@@ -88,9 +95,28 @@ export default function HomePageLowerContent() {
                       {product.name}
                     </h3>
                     <div className="h-px bg-gray-200 mb-3"></div>
-                    <p className="text-xl font-semibold text-[#6B0000] mb-3">
-                      R$ {product.price.toFixed(2)}
-                    </p>
+                    <div className="mb-3 min-h-13">
+                      {product.compare_at_price &&
+                      product.compare_at_price > product.price ? (
+                        <>
+                          <p className="text-sm text-gray-500 line-through">
+                            R$ {product.compare_at_price.toFixed(2)}
+                          </p>
+                          <p className="text-xl font-semibold text-[#6B0000]">
+                            R$ {product.price.toFixed(2)}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm text-gray-500 line-through opacity-0">
+                            R$ 0.00
+                          </p>
+                          <p className="text-xl font-semibold text-[#6B0000]">
+                            R$ {product.price.toFixed(2)}
+                          </p>
+                        </>
+                      )}
+                    </div>
                   </Link>
                   <button
                     onClick={() =>
