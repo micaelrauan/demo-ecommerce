@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://conde-semijoias.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://condesemijoias.com.br";
 
 type NuvemshopProduct = {
   id: string | number;
