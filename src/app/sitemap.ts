@@ -1,7 +1,20 @@
 import type { MetadataRoute } from "next";
 
-const BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://condesemijoias.com.br";
+const CANONICAL_BASE = "https://condesemijoias.com.br";
+
+function resolveBaseUrl(): string {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (!raw) return CANONICAL_BASE;
+
+  const normalized = raw.replace(/\/$/, "");
+  if (normalized.includes("conde-semijoias.vercel.app")) {
+    return CANONICAL_BASE;
+  }
+
+  return normalized;
+}
+
+const BASE = resolveBaseUrl();
 
 type NuvemshopProduct = {
   id: string | number;
