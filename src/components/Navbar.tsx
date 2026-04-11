@@ -129,7 +129,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" prefetch className="shrink-0">
               <h1 className="text-2xl font-light tracking-wider text-black">
-                Conde Semijoias
+                CONDE SEMIJOIAS
               </h1>
             </Link>
 
@@ -462,7 +462,7 @@ export default function Navbar() {
             {/* Logo compacta */}
             <Link href="/" prefetch className="shrink-0">
               <h1 className="text-lg font-light tracking-wider text-black whitespace-nowrap">
-                Conde Semijoias
+                CONDE SEMIJOIAS
               </h1>
             </Link>
 
