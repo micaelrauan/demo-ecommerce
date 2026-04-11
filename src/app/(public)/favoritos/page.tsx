@@ -13,7 +13,8 @@ function formatCurrency(value: number): string {
 }
 
 export default function FavoritosPage() {
-  const { favorites, favoritesCount, removeFavorite, isLoading } = useFavorites();
+  const { favorites, favoritesCount, removeFavorite, isLoading } =
+    useFavorites();
   const { addItem } = useCart();
 
   if (isLoading) {
@@ -46,7 +47,8 @@ export default function FavoritosPage() {
             Meus Favoritos
           </h1>
           <p className="text-gray-600 font-light">
-            {favoritesCount} {favoritesCount === 1 ? "item salvo" : "itens salvos"}
+            {favoritesCount}{" "}
+            {favoritesCount === 1 ? "item salvo" : "itens salvos"}
           </p>
         </div>
 
@@ -160,7 +162,9 @@ export default function FavoritosPage() {
                       disabled={product.stock === 0}
                       className="w-full py-2.5 bg-black text-white rounded-lg text-sm font-light hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
-                      {product.stock === 0 ? "Esgotado" : "Adicionar ao Carrinho"}
+                      {product.stock === 0
+                        ? "Esgotado"
+                        : "Adicionar ao Carrinho"}
                     </button>
 
                     <button

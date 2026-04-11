@@ -28,7 +28,13 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/api/", "/sign-in", "/sign-up", "/meus-pedidos", "/pedido/"],
+        disallow: [
+          "/api/",
+          "/sign-in",
+          "/sign-up",
+          "/meus-pedidos",
+          "/pedido/",
+        ],
       },
     ],
     host: base,

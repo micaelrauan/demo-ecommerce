@@ -18,7 +18,10 @@ interface UserMenuProps {
   iconOnly?: boolean;
 }
 
-export default function UserMenu({ compact = false, iconOnly = false }: UserMenuProps) {
+export default function UserMenu({
+  compact = false,
+  iconOnly = false,
+}: UserMenuProps) {
   const { isSignedIn } = useAuth();
   const buttonClasses = compact
     ? "min-h-11 px-4 text-sm"

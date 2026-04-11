@@ -18,7 +18,10 @@ const SignUpButton = dynamic(
 
 const UserButton = dynamic(
   () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
-  { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" /> },
+  {
+    ssr: false,
+    loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" />,
+  },
 );
 
 export default function AuthNavbar() {

@@ -83,7 +83,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isLoading) return;
-    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+    window.localStorage.setItem(
+      FAVORITES_STORAGE_KEY,
+      JSON.stringify(favorites),
+    );
   }, [favorites, isLoading]);
 
   const addFavorite = (product: Product) => {
@@ -147,7 +150,9 @@ export function useFavorites() {
   const context = useContext(FavoritesContext);
 
   if (!context) {
-    throw new Error("useFavorites deve ser usado dentro de um FavoritesProvider");
+    throw new Error(
+      "useFavorites deve ser usado dentro de um FavoritesProvider",
+    );
   }
 
   return context;

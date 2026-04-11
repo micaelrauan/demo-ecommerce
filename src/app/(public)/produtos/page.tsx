@@ -33,7 +33,7 @@ export default function ProdutosPage() {
 
   useEffect(() => {
     loadCategories();
-  }, []);  
+  }, []);
 
   useEffect(() => {
     const q = (searchParams.get("q") || "").trim();
@@ -132,7 +132,9 @@ export default function ProdutosPage() {
       typeof product.height === "number" &&
       typeof product.depth === "number"
     ) {
-      pieces.push(`Dimensões: ${product.width}x${product.height}x${product.depth} cm`);
+      pieces.push(
+        `Dimensões: ${product.width}x${product.height}x${product.depth} cm`,
+      );
     }
 
     return pieces.join(" • ");
@@ -574,21 +576,21 @@ export default function ProdutosPage() {
 
                       <div className="p-5 flex flex-col flex-1">
                         <div className="flex-1">
-                        {product.category?.name && (
-                          <span className="inline-block text-xs text-gray-500 font-light uppercase tracking-wider mb-2">
-                            {product.category.name}
-                          </span>
-                        )}
-                        <Link href={`/produtos/${product.id}`}>
-                          <h3 className="text-sm sm:text-lg font-bold text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-10 sm:min-h-14">
-                            {product.name}
-                          </h3>
-                        </Link>
-                        {formatProductMeta(product) && (
-                          <p className="text-[11px] sm:text-xs text-gray-500 font-light mb-4 line-clamp-1">
-                            {formatProductMeta(product)}
-                          </p>
-                        )}
+                          {product.category?.name && (
+                            <span className="inline-block text-xs text-gray-500 font-light uppercase tracking-wider mb-2">
+                              {product.category.name}
+                            </span>
+                          )}
+                          <Link href={`/produtos/${product.id}`}>
+                            <h3 className="text-sm sm:text-lg font-bold text-black mb-2 group-hover:text-gray-600 transition-colors line-clamp-2 min-h-10 sm:min-h-14">
+                              {product.name}
+                            </h3>
+                          </Link>
+                          {formatProductMeta(product) && (
+                            <p className="text-[11px] sm:text-xs text-gray-500 font-light mb-4 line-clamp-1">
+                              {formatProductMeta(product)}
+                            </p>
+                          )}
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                           <div>
