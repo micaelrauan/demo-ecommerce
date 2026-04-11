@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { getCategories, getProducts } from "@/lib/api/products";
 import type { Product } from "@/lib/types";
 
@@ -15,6 +17,7 @@ interface Category {
 type ViewMode = "grid" | "list";
 
 export default function ProdutosPage() {
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -26,10 +29,16 @@ export default function ProdutosPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [showFilters, setShowFilters] = useState(false);
   const { addItem } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     loadCategories();
   }, []);  
+
+  useEffect(() => {
+    const q = (searchParams.get("q") || "").trim();
+    setSearchQuery(q);
+  }, [searchParams]);
 
   useEffect(() => {
     loadData();
@@ -532,6 +541,33 @@ export default function ProdutosPage() {
                                 Esgotado
                               </span>
                             )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleFavorite(product);
+                            }}
+                            className="absolute top-3 left-3 bg-white/90 hover:bg-white rounded-full p-2 shadow transition-all"
+                            aria-label={
+                              isFavorite(product.id)
+                                ? "Remover dos favoritos"
+                                : "Adicionar aos favoritos"
+                            }
+                          >
+                            <svg
+                              className={`w-5 h-5 ${
+                                isFavorite(product.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-gray-500"
+                              }`}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                          </button>
                           <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         </div>
                       </Link>
@@ -648,6 +684,33 @@ export default function ProdutosPage() {
                                 Esgotado
                               </span>
                             )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              toggleFavorite(product);
+                            }}
+                            className="absolute top-3 left-3 bg-white/90 hover:bg-white rounded-full p-2 shadow transition-all"
+                            aria-label={
+                              isFavorite(product.id)
+                                ? "Remover dos favoritos"
+                                : "Adicionar aos favoritos"
+                            }
+                          >
+                            <svg
+                              className={`w-5 h-5 ${
+                                isFavorite(product.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : "text-gray-500"
+                              }`}
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                          </button>
                         </div>
                       </Link>
 

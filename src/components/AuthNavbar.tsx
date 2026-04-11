@@ -36,7 +36,7 @@ export default function AuthNavbar() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" prefetch className="shrink-0">
             <h1 className="text-xl font-light tracking-wider text-black">
-              CONDE SEMIJOIAS
+              Conde Semijoias
             </h1>
           </Link>
 

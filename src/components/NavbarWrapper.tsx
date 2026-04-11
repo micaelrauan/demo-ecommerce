@@ -8,7 +8,7 @@ export default function NavbarWrapper() {
   const pathname = usePathname();
 
   // Rotas que usam a navbar simplificada
-  const authRoutePrefixes = ["/conta", "/minha-conta", "/meus-pedidos"];
+  const authRoutePrefixes = ["/conta", "/meus-pedidos"];
   const normalizedPath =
     pathname.endsWith("/") && pathname !== "/"
       ? pathname.slice(0, -1)

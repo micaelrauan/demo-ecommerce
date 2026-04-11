@@ -4,23 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useAuth } from "@clerk/nextjs";
 import { useCart } from "@/contexts/CartContext";
 
 const UserMenu = dynamic(() => import("@/components/header/UserMenu"), {
   ssr: false,
   loading: () => <div className="w-44 h-11" />,
 });
-
-const SignInButton = dynamic(
-  () => import("@clerk/nextjs").then((mod) => ({ default: mod.SignInButton })),
-  { ssr: false },
-);
-
-const UserButton = dynamic(
-  () => import("@clerk/nextjs").then((mod) => ({ default: mod.UserButton })),
-  { ssr: false, loading: () => <div className="w-8 h-8 rounded-full bg-gray-100" /> },
-);
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -29,7 +18,6 @@ export default function Navbar() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [currentPromo, setCurrentPromo] = useState(0);
   const pathname = usePathname();
-  const { isSignedIn } = useAuth();
   const { itemCount } = useCart();
   const closeMobileMenu = () => setIsMenuOpen(false);
 
@@ -133,8 +121,7 @@ export default function Navbar() {
       <nav
         className={`bg-white shadow-md fixed left-0 right-0 z-40 transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0" : "-translate-y-full"
-        } [font-family:var(--font-poppins)] font-light`}
-        style={{ top: "40px" }}
+        } [font-family:var(--font-poppins)] font-light top-[36px] md:top-[40px]`}
       >
         {/* Main Navbar */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,7 +129,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link href="/" prefetch className="shrink-0">
               <h1 className="text-2xl font-light tracking-wider text-black">
-                CONDE SEMIJOIAS
+                Conde Semijoias
               </h1>
             </Link>
 
@@ -411,50 +398,8 @@ export default function Navbar() {
 
               {/* Mobile Icons */}
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-200">
-                {!isSignedIn ? (
-                  <SignInButton mode="modal">
-                    <button
-                      type="button"
-                      className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
-                    >
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5.121 17.804A9 9 0 1112 21a8.96 8.96 0 01-6.879-3.196zM15 10a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <span className="text-xs mt-1 font-light">Entrar</span>
-                    </button>
-                  </SignInButton>
-                ) : (
-                  <Link
-                    href="/minha-conta"
-                    onClick={closeMobileMenu}
-                    className="flex min-h-11 flex-col items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-50 hover:text-black"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5.121 17.804A9 9 0 1112 21a8.96 8.96 0 01-6.879-3.196zM15 10a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    <span className="text-xs mt-1 font-light">Conta</span>
-                  </Link>
-                )}
+                <UserMenu iconOnly />
+
                 <Link
                   href="/favoritos"
                   onClick={closeMobileMenu}
@@ -517,7 +462,7 @@ export default function Navbar() {
             {/* Logo compacta */}
             <Link href="/" prefetch className="shrink-0">
               <h1 className="text-lg font-light tracking-wider text-black whitespace-nowrap">
-                CONDE SEMIJOIAS
+                Conde Semijoias
               </h1>
             </Link>
 

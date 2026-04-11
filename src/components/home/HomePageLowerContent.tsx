@@ -9,7 +9,6 @@ import { useCart } from "@/contexts/CartContext";
 export default function HomePageLowerContent() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
   const { addItem } = useCart();
 
   useEffect(() => {
@@ -26,12 +25,6 @@ export default function HomePageLowerContent() {
 
     loadProducts();
   }, []);
-
-  const handleNewsletter = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert("Cadastro realizado! Você ganhou 15% OFF na primeira compra!");
-    setEmail("");
-  };
 
   return (
     <>
@@ -211,40 +204,6 @@ export default function HomePageLowerContent() {
               Primeira troca por nossa conta
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-16 px-4 sm:px-8 bg-[#0f0f0f] text-white">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-light mb-4 tracking-tight">
-            Cadastre-se e Ganhe
-          </h2>
-          <p className="text-3xl md:text-4xl font-light mb-8 text-[#c9a96e]">
-            15% OFF na Primeira Compra
-          </p>
-          <form
-            onSubmit={handleNewsletter}
-            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Seu melhor e-mail"
-              required
-              className="flex-1 px-6 py-4 border border-[#c9a96e]/50 bg-transparent text-sm text-white placeholder:text-white/60 focus:outline-none focus:border-[#c9a96e] transition-colors"
-            />
-            <button
-              type="submit"
-              className="px-8 py-4 border border-[#c9a96e] text-white text-sm font-medium tracking-widest uppercase hover:bg-[#c9a96e] hover:text-black transition-colors whitespace-nowrap"
-            >
-              Cadastrar
-            </button>
-          </form>
-          <p className="text-xs text-white/60 mt-4 font-light">
-            *Desconto não cumulativo com outras promoções
-          </p>
         </div>
       </section>
 

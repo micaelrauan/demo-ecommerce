@@ -157,28 +157,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h3 className="text-lg font-light mb-6 tracking-wide border-b border-gray-700 pb-3">
-              Newsletter
-            </h3>
-            <p className="text-gray-400 font-light text-sm mb-4">
-              Receba ofertas exclusivas e novos lançamentos.
-            </p>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Seu email"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors font-light text-sm"
-              />
-              <button
-                type="submit"
-                className="w-full px-4 py-2 bg-[#30090D] hover:bg-[#4a0d14] text-white rounded-lg transition-colors font-light text-sm"
-              >
-                Inscrever
-              </button>
-            </form>
-          </div>
         </div>
 
         {/* Social Links */}

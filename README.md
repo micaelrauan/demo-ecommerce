@@ -50,7 +50,7 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL=/
 
 RESEND_API_KEY=re_sua_chave
 RESEND_FROM_EMAIL=pedidos@condesemijoias.com.br
-NEXT_PUBLIC_SITE_URL=https://conde-semijoias.vercel.app
+NEXT_PUBLIC_SITE_URL=https://condesemijoias.com.br
 ```
 
 ## Setup Local

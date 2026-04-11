@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import { getProductById, getProducts } from "@/lib/api";
 import type { Product } from "@/lib/types";
 
@@ -87,11 +88,11 @@ export default function ProdutoDetalheClient() {
   const [error, setError] = useState<string | null>(null);
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [expandedFrete, setExpandedFrete] = useState(false);
   const [cepInput, setCepInput] = useState("");
   const { addItem } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     let mounted = true;
@@ -223,10 +224,6 @@ export default function ProdutoDetalheClient() {
     router.push("/carrinho");
   };
 
-  const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
-
   const handleCepCheck = () => {
     if (cepInput.length === 8 || cepInput.length === 9) {
       console.log("CEP verificado:", cepInput);
@@ -331,14 +328,20 @@ export default function ProdutoDetalheClient() {
               </div>
 
               <button
-                onClick={handleFavorite}
+                onClick={() => toggleFavorite(product)}
                 className="absolute top-4 right-4 bg-white rounded-full p-3 shadow-md hover:shadow-lg transition-all"
                 aria-label={
-                  isFavorite ? "Remover favorito" : "Adicionar favorito"
+                  isFavorite(product.id)
+                    ? "Remover favorito"
+                    : "Adicionar favorito"
                 }
               >
                 <svg
-                  className={`w-6 h-6 transition-colors ${isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`}
+                  className={`w-6 h-6 transition-colors ${
+                    isFavorite(product.id)
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-400"
+                  }`}
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

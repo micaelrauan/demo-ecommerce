@@ -19,7 +19,7 @@ export default function MainWrapper({
   const pathname = usePathname();
 
   // Rotas que usam a navbar simplificada (sem padding extra)
-  const authRoutePrefixes = ["/conta", "/minha-conta", "/meus-pedidos"];
+  const authRoutePrefixes = ["/conta", "/meus-pedidos"];
   const normalizedPath =
     pathname.endsWith("/") && pathname !== "/"
       ? pathname.slice(0, -1)
